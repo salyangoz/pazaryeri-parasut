@@ -65,7 +65,7 @@ class N11 extends Marketplace
     }
 
     /**
-     * Transfer n11 sales to parasut
+     * n11 Satışlarını paraşüte aktarır
      */
     public function transfer()
     {
@@ -130,7 +130,8 @@ class N11 extends Marketplace
         }
     }
 
-    /** Satıştan sipariş müşterisi oluşturup paraşüte aktarır
+    /**
+     * Satıştan sipariş müşterisi oluşturup paraşüte aktarır
      * @param $sale
      * @return bool|mixed
      */
@@ -160,7 +161,8 @@ class N11 extends Marketplace
         return $buyerId;
     }
 
-    /** Fatura açıklamasını getirir, açıklamayı sipariş edilen ürünlerin adlarını birleştirerek oluşturur
+    /**
+     * Fatura açıklamasını getirir, açıklamayı sipariş edilen ürünlerin adlarını birleştirerek oluşturur
      * @param $sale
      * @return string
      */
@@ -185,7 +187,8 @@ class N11 extends Marketplace
         return $itemNames;
     }
 
-    /** Sipariş ürününü paraşüte tanımlar, eğer ürün daha önce tanımlandıysa o ismi getirir
+    /**
+     * Sipariş ürününü paraşüte tanımlar, eğer ürün daha önce tanımlandıysa o idyi getirir
      * @param $item
      * @return bool|mixed
      */

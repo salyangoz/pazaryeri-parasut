@@ -1,0 +1,16 @@
+{
+    "name": "salyangoz/parasut-pazaryeri",
+    "description": "An easy-to-use parasut.com API with N11, Gittigidiyor and Hepsiburada.",
+    "type": "Php",
+    "require": {
+        "mayoz/parasut": "^1.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Senol Orencik",
+            "email": "o@yedincisenol.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
