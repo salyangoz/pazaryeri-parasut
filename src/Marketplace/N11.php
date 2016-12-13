@@ -6,7 +6,6 @@ use salyangoz\pazaryeriparasut;
 
 class N11 extends Marketplace
 {
-
     private $n11;
 
     public function __construct(array $config)
@@ -15,7 +14,8 @@ class N11 extends Marketplace
         parent::__construct($config);
 
         $n11Params = ['appKey'       =>  array_get($config,'n11_app_key'),
-                      'appSecret'    =>  array_get($config,'n11_app_secret')];
+                      'appSecret'    =>  array_get($config,'n11_app_secret'),
+                      'baseUrl'      =>  array_get($config,'n11_base_url')];
 
         $this->n11  = new pazaryeriparasut\Library\N11($n11Params);
 
@@ -39,7 +39,7 @@ class N11 extends Marketplace
                     "productSellerCode" =>'',
                     "recipient"=> '',
                     "period"=>[
-                        "startDate"=> date_create('now')->format('d/m/Y') - 1,
+                        "startDate"=> date_create('-1 day')->format('d/m/Y'),
                         "endDate"=> date_create('now')->format('d/m/Y')
                     ]
                 ]
@@ -90,11 +90,12 @@ class N11 extends Marketplace
                 'description'   => $invoiceDescription,
                 'issue_date'    => str_replace("/","-",$sale->createDate),
                 'contact_id'    => $buyerId,
-                'invoice_series' => "N11",
-                'category_id'   => null,
+                'invoice_series'=> "N11",
+                'category_id'   => config("parasut-pazaryeri.parasut_category_id"),
+                'payment_status'=>'paid',
             ];
 
-
+            $items  =   [];
             foreach ($sale->itemList as $item1)
             {
 
@@ -116,17 +117,31 @@ class N11 extends Marketplace
                             'quantity'          => $i->quantity,
                             'discount_value'    => 0,
                             'discount_type'     => 'amount',
-                            'unit_price'        => $i->sellerInvoiceAmount / (1 + 0.18),
+                            'unit_price'        => $i->dueAmount / (1 + 0.18),
                             'vat_rate'          => 0.18 * 100,
                         ];
 
                 }
             }
 
+            /**
+             * Fatura kaydı oluşturuluyor
+             */
             $response = $this->parasut->make('sale')->create($invoiceData);
+
+            /**
+             * Fatura ödendi yapılıyor ve ödeme belirlenen hesap kasasına kaydediliyor
+             */
+            $this->parasut->make('sale')->paid(
+                $response['sales_invoice']['id'],
+                [   "amount"=>$sale->billingTemplate->dueAmount,
+                    "date"=>date('Y-m-d'),
+                    "account_id"=>Config('pazaryeri-parasut.parasut_account_id')]
+            );
+
             $this->localStorage->set('order','N11_'.$sale->id,$response['sales_invoice']['id']);
             $this->localStorage->save();
-
+            exit();
         }
     }
 
@@ -156,6 +171,10 @@ class N11 extends Marketplace
 
             $this->localStorage->set('customer',"N11_".$sale->buyer->id,$buyerId);
             $this->localStorage->save();
+        }
+        else
+        {
+            return $buyerId;
         }
 
         return $buyerId;
