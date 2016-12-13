@@ -141,7 +141,7 @@ class N11 extends Marketplace
 
             $this->localStorage->set('order','N11_'.$sale->id,$response['sales_invoice']['id']);
             $this->localStorage->save();
-            exit();
+
         }
     }
 
