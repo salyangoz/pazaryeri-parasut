@@ -217,7 +217,7 @@ class N11 extends Marketplace
         {
             $product = $this->parasut->make('product')->create(["name"=>$item->productName,"code"=>'N11_'.$item->productId]);
             $productID = $product['product']['id'];
-            $this->localStorage->set('product',"N11_'.$item->productId",$product['product']['id']);
+            $this->localStorage->set('product',"N11_.$item->productId",$product['product']['id']);
             $this->localStorage->save();
         }
 
