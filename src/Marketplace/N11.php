@@ -91,7 +91,7 @@ class N11 extends Marketplace
                 'issue_date'    => str_replace("/","-",$sale->createDate),
                 'contact_id'    => $buyerId,
                 'invoice_series'=> "N11",
-                'category_id'   => config("parasut-pazaryeri.parasut_category_id"),
+                'category_id'   => config("pazaryeri-parasut.parasut_category_id"),
                 'payment_status'=>'paid',
             ];
 
@@ -117,7 +117,7 @@ class N11 extends Marketplace
                             'quantity'          => $i->quantity,
                             'discount_value'    => 0,
                             'discount_type'     => 'amount',
-                            'unit_price'        => $i->dueAmount / (1 + 0.18),
+                            'unit_price'        => ($i->dueAmount / $i->quantity) / (1 + 0.18),
                             'vat_rate'          => 0.18 * 100,
                         ];
 
