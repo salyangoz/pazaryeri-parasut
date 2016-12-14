@@ -10,9 +10,11 @@ abstract class MarketPlace
 {
     protected $parasut;
     protected $localStorage;
+    protected $config;
 
     public function __construct(array $config)
     {
+        $this->config   =   $config;
         // create a new client instance
         $this->parasut = new ParasutClient([
             'client_id'     => array_get($config,'parasut_client_id'),
@@ -37,7 +39,7 @@ abstract class MarketPlace
     private function invoiceDescription($sale){}
     private function product($item){}
 
-    public function createContact($customerDetails)
+    protected function createContact($customerDetails)
     {
 
         return $this->parasut->make('contact')->create(
