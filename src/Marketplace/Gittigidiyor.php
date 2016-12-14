@@ -6,8 +6,8 @@ use salyangoz\pazaryeriparasut;
 
 class Gittigidiyor extends Marketplace
 {
-    private $gittigidiyor;
 
+    private $gittigidiyor;
 
     public function __construct(array $config)
     {
@@ -28,9 +28,15 @@ class Gittigidiyor extends Marketplace
         $this->gittigidiyor =   new pazaryeriparasut\Library\Gittigidiyor($gittigidiyorConfig);
     }
 
+    /**
+     * Bir satışı işler
+     * @param $sale
+     */
     private function processSale($sale)
     {
         $parasutAdapter =   new pazaryeriparasut\ParasutAdapter($this->config,"GG");
+
+        $contactType    =   "person";
 
         if(isset($sale->invoiceInfo))
         {
@@ -39,6 +45,10 @@ class Gittigidiyor extends Marketplace
             $district   =   $sale->invoiceInfo->district;
             $phone      =   $sale->invoiceInfo->phoneNumber;
             $taxOffice  =   $sale->invoiceInfo->taxOffice ? $sale->invoiceInfo->taxOffice : $sale->buyerInfo->district;
+            if($sale->invoiceInfo->taxOffice)
+            {
+                $contactType    =   "company";
+            }
         }
         else
         {
@@ -49,7 +59,7 @@ class Gittigidiyor extends Marketplace
             $taxOffice  =   $district;
         }
 
-        $parasutAdapter->setContact($sale->buyerInfo->username,
+        $parasutAdapter->setContact($contactType,$sale->buyerInfo->username,
             $sale->buyerInfo->name." ".$sale->buyerInfo->surname,
             $address,
             $tax,
@@ -63,7 +73,7 @@ class Gittigidiyor extends Marketplace
 
         $parasutAdapter->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price);
 
-        $parasutAdapter->saveInvoice($sale->saleCode,$sale->price,$sale->productTitle,str_replace("/","-",$sale->lastActionDate));
+        $parasutAdapter->saveInvoice($sale->saleCode,$sale->price,$sale->productTitle, date('Y-m-d'));
     }
 
     private function process($page=1)
@@ -73,15 +83,7 @@ class Gittigidiyor extends Marketplace
 
         foreach (array_reverse($sales->sales->sale) as $sale)
         {
-            $saleTime = \DateTime::createFromFormat("d/m/Y H:i:s",$sale->lastActionDate)->getTimestamp();
-            /**
-             * Apide tarih filtreleme olmadığı için, siparişin son etkinlik tarihine göre kontrol ediliyor. Son hareket bugün olanları baz alıyor.
-             */
-            if($saleTime > strtotime("today"))
-            {
-                $this->processSale($sale);
-            }
-
+            $this->processSale($sale);
         }
 
         if($sales->nextPageAvailable)

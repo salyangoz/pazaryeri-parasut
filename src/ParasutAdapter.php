@@ -90,7 +90,7 @@ class ParasutAdapter
      * @param $email
      * @return bool|mixed
      */
-    public function setContact($buyerID,$fullName,$address,$taxID,$taxOffice,$city,$district,$phone,$email)
+    public function setContact($contactType,$buyerID,$fullName,$address,$taxID,$taxOffice,$city,$district,$phone,$email)
     {
 
         $parasutContactID = $this->localStorage->get("customer.{$this->marketplace}_".$buyerID);
@@ -98,6 +98,7 @@ class ParasutAdapter
         if(!$parasutContactID){
 
             $parasutCustomer    =   [
+                'contact_type'  =>  $contactType,
                 'name' => $fullName,
                 'email' => $email,
                 'tax_number' => $taxID,
