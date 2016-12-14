@@ -34,6 +34,8 @@ class Gittigidiyor extends Marketplace
      */
     private function processSale($sale)
     {
+        print_r($sale);
+
         $parasutAdapter =   new pazaryeriparasut\ParasutAdapter($this->config,"GG");
 
         $contactType    =   "person";
@@ -53,10 +55,10 @@ class Gittigidiyor extends Marketplace
         else
         {
             $address    =   $sale->buyerInfo->address;
-            $tax        =   "";
+            $tax        =   $sale->invoiceInfo->tcCertificate?$sale->invoiceInfo->tcCertificate:11111111111;
             $district   =   $sale->buyerInfo->district;
             $phone      =   $sale->buyerInfo->phone;
-            $taxOffice  =   $district;
+            $taxOffice  =   "";
         }
 
         $parasutAdapter->setContact($contactType,$sale->buyerInfo->username,
