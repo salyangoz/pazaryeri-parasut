@@ -50,6 +50,8 @@ class Gittigidiyor extends Marketplace
             {
                 $contactType    =   "company";
             }
+
+            $fullname   =   $sale->invoiceInfo->companyTitle;
         }
         else
         {
@@ -58,10 +60,11 @@ class Gittigidiyor extends Marketplace
             $district   =   $sale->buyerInfo->district;
             $phone      =   $sale->buyerInfo->phone;
             $taxOffice  =   "";
+            $fullname   =   $sale->buyerInfo->name." ".$sale->buyerInfo->surname;
         }
 
         $parasutAdapter->setContact($contactType,$sale->buyerInfo->username,
-            $sale->buyerInfo->name." ".$sale->buyerInfo->surname,
+            $fullname,
             $address,
             $tax,
             $taxOffice,
