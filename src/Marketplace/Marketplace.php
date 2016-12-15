@@ -11,6 +11,7 @@ abstract class MarketPlace
     protected $parasut;
     protected $localStorage;
     protected $config;
+    protected $parasutAdapter;
 
     public function __construct(array $config)
     {

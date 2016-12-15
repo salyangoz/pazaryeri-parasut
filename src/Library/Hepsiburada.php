@@ -18,14 +18,18 @@ class Hepsiburada
 		$this->merchantID	=	array_get($config,'merchant_id');
 		$this->orderEndpoint	=	array_get($config,'order_endpoint');
 	}
-	
-	public function sales()
+
+    /**
+     * Son 24 saate gerçekeşen “unpacked” ve “open” durumundaki siparişleri döndürür
+     * @return mixed
+     */
+	public function orders()
 	{
 		$client = new GuzzleHttp\Client();
 		$res = $client->request('GET', $this->orderEndpoint."packages/merchantid/{$this->merchantID}",
-			['auth' => [$this->username,$this->password]]
+			['auth' => [$this->username,$this->password],'verify' => false]
 		);
 		
-		echo $res->getBody();
+		return GuzzleHttp\json_decode($res->getBody());
 	}
 }

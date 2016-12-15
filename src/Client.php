@@ -27,6 +27,9 @@ class Client implements PazaryeriParasut
         $gittigidiyor   =   new Marketplace\Gittigidiyor($this->config);
         $gittigidiyor->transfer($this->config);
 
+/*        $hepsiburada    =   new Marketplace\Hepsiburada($this->config);
+        $hepsiburada->transfer();*/
+
     }
 
 

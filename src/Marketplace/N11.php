@@ -73,89 +73,28 @@ class N11 extends Marketplace
 
         foreach ($sales as $sale)
         {
-            $sale = $sale->orderDetail;
-
-            /** Eğer fatura daha önce işlendiyse atlıyor */
-            if($this->localStorage->get("order.N11_".$sale->id))
-            {
-                continue;
-            }
-
-            /** Eğer sipariş tutarı 0 tl ise atıyor */
-            if($sale->billingTemplate->dueAmount == 0 )
-                continue;
-
-            $invoiceDescription = $this->invoiceDescription($sale);
-
-            $buyerId = $this->contact($sale);
-
-            $invoiceData    =   [
-                'item_type'     => 'invoice',
-                'description'   => $invoiceDescription,
-                'issue_date'    => date('Y-m-d'),
-                'contact_id'    => $buyerId,
-                'invoice_series'=> "N11",
-                'category_id'   => config("pazaryeri-parasut.parasut_category_id"),
-                'payment_status'=>'paid',
-            ];
-
-            $items  =   [];
-            foreach ($sale->itemList as $item1)
-            {
-
-                if(!is_array($item1)){
-                    $items[] = $item1;
-                }
-                else
-                {
-                    $items  =   $item1;
-                }
-
-                foreach ($items as $i)
-                {
-                    $productID  =   $this->product($i);
-
-                    $invoiceData['details_attributes'][] =
-                        [
-                            'product_id'        => $productID,
-                            'quantity'          => $i->quantity,
-                            'discount_value'    => 0,
-                            'discount_type'     => 'amount',
-                            'unit_price'        => ($i->dueAmount / $i->quantity) / (1 + 0.18),
-                            'vat_rate'          => 0.18 * 100,
-                        ];
-
-                }
-            }
-
-            /**
-             * Fatura kaydı oluşturuluyor
-             */
-            $response = $this->parasut->make('sale')->create($invoiceData);
-
-            /**
-             * Fatura ödendi yapılıyor ve ödeme belirlenen hesap kasasına kaydediliyor
-             */
-            $this->parasut->make('sale')->paid(
-                $response['sales_invoice']['id'],
-                [   "amount"=>$sale->billingTemplate->dueAmount,
-                    "date"=>date('Y-m-d'),
-                    "account_id"=>Config('pazaryeri-parasut.parasut_account_id')]
-            );
-
-            $this->localStorage->set('order','N11_'.$sale->id,$response['sales_invoice']['id']);
-            $this->localStorage->save();
+            $this->process_sale($sale);
 
         }
     }
 
-    /**
-     * Satıştan sipariş müşterisi oluşturup paraşüte aktarır
-     * @param $sale
-     * @return bool|mixed
-     */
-    private function contact($sale)
+    private function process_sale($sale)
     {
+
+        $this->parasutAdapter   =   new pazaryeriparasut\ParasutAdapter($this->config,"N11");
+        $sale = $sale->orderDetail;
+
+        /** Eğer fatura daha önce işlendiyse atlıyor */
+        if($this->localStorage->get("order.N11_".$sale->id))
+        {
+            return;
+        }
+
+        /** Eğer sipariş tutarı 0 tl ise atıyor */
+        if($sale->billingTemplate->dueAmount == 0 )
+            return;
+
+        $contactType    =   $sale->buyer->taxId?'company':'person';
 
         $taxNumber = $sale->buyer->taxId;
 
@@ -169,76 +108,40 @@ class N11 extends Marketplace
             $taxOffice =    $sale->buyer->taxOffice ? $sale->buyer->taxOffice : $sale->billingAddress->district;
         }
 
-        $parasutCustomer['billing']             =   [];
-        $parasutCustomer['billing']['title']    =   $sale->billingAddress->fullName;
-        $parasutCustomer['billing']['address']  =   $sale->billingAddress->address;
-        $parasutCustomer['billing']['number']   =   $taxNumber;
-        $parasutCustomer['billing']['office']   =   $taxOffice;
-        $parasutCustomer['billing']['city']     =   $sale->billingAddress->city;
-        $parasutCustomer['billing']['district'] =   $sale->billingAddress->district;
-        $parasutCustomer['phone']               =   $sale->billingAddress->gsm;
-        $parasutCustomer['email']               =   $sale->buyer->email;
-        $parasutCustomer['contact_type']        =   $sale->buyer->taxId?'company':'person';
+        $this->parasutAdapter->setContact(
+            $contactType,$sale->buyer->id,$sale->billingAddress->fullName,
+            $sale->billingAddress->address,$taxNumber,$taxOffice,$sale->billingAddress->city,$sale->billingAddress->district,
+            $sale->billingAddress->gsm,$sale->buyer->email
+        );
 
-        $buyerId = $this->localStorage->get("customer.N11_".$sale->buyer->id);
-
-        if(!$buyerId){
-            $contact    = $this->createContact($parasutCustomer);
-            $buyerId    =   $contact['contact']['id'];
-
-            $this->localStorage->set('customer',"N11_".$sale->buyer->id,$buyerId);
-            $this->localStorage->save();
-        }
-        else
+        $items  =   [];
+        foreach ($sale->itemList as $item1)
         {
-            return $buyerId;
-        }
 
-        return $buyerId;
-    }
-
-    /**
-     * Fatura açıklamasını getirir, açıklamayı sipariş edilen ürünlerin adlarını birleştirerek oluşturur
-     * @param $sale
-     * @return string
-     */
-    private function invoiceDescription($sale)
-    {
-        $itemNames  =   "";
-
-        foreach($sale->itemList as $item)
-        {
-            if(is_array($item)){
-                foreach ($item as $i)
-                {
-                    $itemNames  =   $i->productName." | ";
-                }
+            if(!is_array($item1)){
+                $items[] = $item1;
             }
             else
             {
-                $itemNames = $item->productName." ";
+                $items  =   $item1;
             }
+
+            $invoiceDescription =   "";
+
+            $total  =   0;
+
+            foreach ($items as $i)
+            {
+                $this->parasutAdapter->addProduct($i->productName,$i->productId,$i->quantity,($i->dueAmount / $i->quantity));
+                $invoiceDescription.=$i->productName." ";
+                $total+=$i->dueAmount/$i->quantity;
+
+            }
+
         }
 
-        return $itemNames;
-    }
+        $this->parasutAdapter->saveInvoice($sale->id,$sale->billingTemplate->dueAmount,$invoiceDescription,date('Y-m-d'));
 
-    /**
-     * Sipariş ürününü paraşüte tanımlar, eğer ürün daha önce tanımlandıysa o idyi getirir
-     * @param $item
-     * @return bool|mixed
-     */
-    private function product($item)
-    {
-        if(!$productID = $this->localStorage->get("product.".'N11_'.$item->productId))
-        {
-            $product = $this->parasut->make('product')->create(["name"=>$item->productName,"code"=>'N11_'.$item->productId]);
-            $productID = $product['product']['id'];
-            $this->localStorage->set('product',"N11_.$item->productId",$product['product']['id']);
-            $this->localStorage->save();
-        }
-
-        return $productID;
     }
 
 }

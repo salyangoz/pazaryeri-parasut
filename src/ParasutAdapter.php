@@ -65,7 +65,7 @@ class ParasutAdapter
      */
     private function setProduct($productName,$productID)
     {
-        if(!$parasutProductID = $this->localStorage->get("product_{$this->marketplace}".$productID))
+        if(!$parasutProductID = $this->localStorage->get("product.{$this->marketplace}_".$productID))
         {
             $product = $this->createProduct(["name"=>$productName,"code"=>"{$this->marketplace}_".$productID]);
 
