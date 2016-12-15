@@ -88,7 +88,7 @@ class N11 extends Marketplace
             $invoiceData    =   [
                 'item_type'     => 'invoice',
                 'description'   => $invoiceDescription,
-                'issue_date'    => str_replace("/","-",$sale->createDate),
+                'issue_date'    => date('Y-m-d'),
                 'contact_id'    => $buyerId,
                 'invoice_series'=> "N11",
                 'category_id'   => config("pazaryeri-parasut.parasut_category_id"),
@@ -154,16 +154,22 @@ class N11 extends Marketplace
     {
 
         $taxNumber = $sale->buyer->taxId;
-        if($taxNumber)
+
+        $taxOffice =    $sale->buyer->taxOffice;
+        if(!$taxNumber)
         {
             $taxNumber = $sale->buyer->tcId?$sale->buyer->tcId:11111111111;
+        }
+        else
+        {
+            $taxOffice =    $sale->buyer->taxOffice ? $sale->buyer->taxOffice : $sale->billingAddress->district;
         }
 
         $parasutCustomer['billing']             =   [];
         $parasutCustomer['billing']['title']    =   $sale->billingAddress->fullName;
         $parasutCustomer['billing']['address']  =   $sale->billingAddress->address;
         $parasutCustomer['billing']['number']   =   $taxNumber;
-        $parasutCustomer['billing']['office']   =   $sale->buyer->taxOffice;
+        $parasutCustomer['billing']['office']   =   $taxOffice;
         $parasutCustomer['billing']['city']     =   $sale->billingAddress->city;
         $parasutCustomer['billing']['district'] =   $sale->billingAddress->district;
         $parasutCustomer['phone']               =   $sale->billingAddress->gsm;
