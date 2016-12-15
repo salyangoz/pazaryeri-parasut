@@ -3,7 +3,8 @@
     "description": "An easy-to-use parasut.com API with N11, Gittigidiyor and Hepsiburada.",
     "type": "Php",
     "require": {
-        "mayoz/parasut": "^1.0"
+        "mayoz/parasut": "^1.0",
+        "guzzlehttp/guzzle": "^6.2"
     },
     "license": "MIT",
     "authors": [

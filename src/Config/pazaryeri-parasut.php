@@ -19,5 +19,9 @@ return [
     'gittigidiyor_auth_password'        =>  env('GITTIGIDIYOR_AUTH_PASSWORD'),
     'gittigidiyor_lang'                 =>  env('GITTIGIDIYOR_LANG'),
     'gittigidiyor_developer_base_url'   =>  'https://dev.gittigidiyor.com:8443/',
-    'gittigidiyor_product_base_url'     =>  'http://dev.gittigidiyor.com:8080/'
+    'gittigidiyor_product_base_url'     =>  'http://dev.gittigidiyor.com:8080/',
+	'hepsiburada_order_endpoint'		=>	'https://oms-external-sit.hepsiburada.com/',
+	'hepsiburada_username'				=>	env('HEPSIBURADA_USERNAME'),
+	'hepsiburada_password'				=>	env('HEPSIBURADA_PASSWORD'),
+	'hepsiburada_merchant_id'			=>	env('HEPSIBURADA_MERCHANT_ID')
 ];
