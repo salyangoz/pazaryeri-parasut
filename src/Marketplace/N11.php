@@ -45,9 +45,6 @@ class N11 extends Marketplace
                 ]
             );
 
-            print_r($orderList);
-            die();
-
             $this->n11->checkResponse($orderList);
 
             foreach($orderList->orderList->order as $order){
