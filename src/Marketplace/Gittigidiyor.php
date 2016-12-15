@@ -35,6 +35,10 @@ class Gittigidiyor extends Marketplace
     private function processSale($sale)
     {
 
+        /** Sipari tutarı 0 tl ise atlıyor */
+        if($sale->price == 0)
+            return;
+
         $parasutAdapter =   new pazaryeriparasut\ParasutAdapter($this->config,"GG");
 
         $contactType    =   "person";

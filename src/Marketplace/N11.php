@@ -81,6 +81,10 @@ class N11 extends Marketplace
                 continue;
             }
 
+            /** Eğer sipariş tutarı 0 tl ise atıyor */
+            if($sale->billingTemplate->dueAmount == 0 )
+                continue;
+
             $invoiceDescription = $this->invoiceDescription($sale);
 
             $buyerId = $this->contact($sale);
