@@ -153,15 +153,22 @@ class N11 extends Marketplace
     private function contact($sale)
     {
 
+        $taxNumber = $sale->buyer->taxId;
+        if($taxNumber)
+        {
+            $taxNumber = $sale->buyer->tcId?$sale->buyer->tcId:11111111111;
+        }
+
         $parasutCustomer['billing']             =   [];
         $parasutCustomer['billing']['title']    =   $sale->billingAddress->fullName;
         $parasutCustomer['billing']['address']  =   $sale->billingAddress->address;
-        $parasutCustomer['billing']['number']   =   $sale->buyer->taxId or $sale->buyer->tcId;
+        $parasutCustomer['billing']['number']   =   $taxNumber;
         $parasutCustomer['billing']['office']   =   $sale->buyer->taxOffice;
         $parasutCustomer['billing']['city']     =   $sale->billingAddress->city;
         $parasutCustomer['billing']['district'] =   $sale->billingAddress->district;
         $parasutCustomer['phone']               =   $sale->billingAddress->gsm;
         $parasutCustomer['email']               =   $sale->buyer->email;
+        $parasutCustomer['contact_type']        =   $sale->buyer->taxId?'company':'person';
 
         $buyerId = $this->localStorage->get("customer.N11_".$sale->buyer->id);
 

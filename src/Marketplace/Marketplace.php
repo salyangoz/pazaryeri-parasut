@@ -44,6 +44,7 @@ abstract class MarketPlace
 
         return $this->parasut->make('contact')->create(
             [
+                'contact_type'  => array_get($customerDetails,'contact_type'),
                 'name' => array_get($customerDetails['billing'], 'title'),
                 'email' => $customerDetails['email'],
                 'tax_number' => array_get($customerDetails['billing'], 'number'),
