@@ -89,7 +89,7 @@ class Gittigidiyor extends Marketplace
 
         $sales = $this->gittigidiyor->getPagedSales(true, 'S', '', 'A', 'D', $page);
 		
-		if(!is_array($sales->sales))
+		if(!is_array($sales->sales->sale))
 		{
 			$saleList = $sales->sales;
 		}
