@@ -52,6 +52,7 @@ Firma Telefonu:
 
 ### N11 API Konfigürasyon Süreçleri
 
+
 ### Hepsiburada Konfigürasyon Süreçleri
 
 ## Güvenlik
@@ -60,7 +61,9 @@ Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyang
 
 ## Katılımcılar
 
+- [Salyangoz Teknoloji](https://github.com/salyangoz)
 - [Senol Örencik](https://github.com/yedincisenol)
+- [Ece Bitiren](https://github.com/ecuci)
 
 ## Lisans
 
