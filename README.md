@@ -15,6 +15,12 @@ $ composer require salyangoz/parasut-pazaryeri
 
 ## Nasıl Kullanılır?
 
+## Gittigidiyor API Konfigürasyon Süreçleri
+
+## N11 API Konfigürasyon Süreçleri
+
+## Hepsiburada Konfigürasyon Süreçleri
+
 ## Güvenlik
 
 Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyangoz.com.tr adresine bildirim yapabilirsiniz.
@@ -23,6 +29,6 @@ Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyang
 
 - [Senol Örencik](https://github.com/yedincisenol)
 
-## Lisan
+## Lisans
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
