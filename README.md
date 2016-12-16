@@ -15,11 +15,44 @@ $ composer require salyangoz/parasut-pazaryeri
 
 ## Nasıl Kullanılır?
 
-## Gittigidiyor API Konfigürasyon Süreçleri
+### Gittigidiyor API Konfigürasyon Süreçleri
+1. http://dev.gittigidiyor.com adresinden mağazanızın bilgileri ile giriş yapın. 
+2. Menüden API Anahtarları bölümüne girin.
+3. Yeni API anahtarı almak için tıklayın. 
+4. Anahtar bilgilerini Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere girin.
+5. Daha sonra gittigidiyor üzerinde AUTH_USERNAME ve AUTH_PASSWORD alabilmek için gittigidiyor destek ekibine api.destek@gittigidiyor.com mail adresine mesaj atın. Aşağıda demo mesajı görebilirsiniz. 
 
-## N11 API Konfigürasyon Süreçleri
+``` 
 
-## Hepsiburada Konfigürasyon Süreçleri
+API girişinizi yapabilmek için API kullanıcı rolü tanımlaması rica ediyoruz. Aşağıda kullanıcı bilgilerimiz mevcuttur. Mağaza adımız “mağaza-adınız”.  
+
+```
+
+Dilerseniz bu mail sonrası gittigidiyor size bazı bilgiler soracaktır. Bu bilgileri hazır tutmanız için aşağıda bu bilgilerin neler olduğunu paylaşıyoruz.
+
+```
+Hesap sahibinin;
+
+Ad:
+Soyad:
+Mail adresi:
+Telefonu:
+Firma Ad:
+Firma Telefonu:
+Firma Web sitesi:
+GittiGidiyor Kullanıcı Adı:
+Kullanım amacınız ve uygulamanız hakkında detaylı bilgi:
+
+Entegrasyon Firması Adı:
+Firma Email Adresi:
+Firma Telefonu:
+```
+
+6. Gelen bilgileri Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere -TODO hangi alanların olduğu işleyebilirsiniz.
+
+### N11 API Konfigürasyon Süreçleri
+
+### Hepsiburada Konfigürasyon Süreçleri
 
 ## Güvenlik
 
