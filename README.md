@@ -15,3 +15,14 @@ $ composer require salyangoz/parasut-pazaryeri
 
 ## Nasıl Kullanılır?
 
+## Güvenlik
+
+Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyangoz.com.tr adresine bildirim yapabilirsiniz.
+
+## Katılımcılar
+
+- [Senol Örencik](https://github.com/yedincisenol)
+
+## Lisan
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
