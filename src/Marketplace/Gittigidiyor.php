@@ -88,8 +88,17 @@ class Gittigidiyor extends Marketplace
     {
 
         $sales = $this->gittigidiyor->getPagedSales(true, 'S', '', 'A', 'D', $page);
+		
+		if(!is_array($sales->sales))
+		{
+			$saleList = $sales->sales;
+		}
+		else
+		{
+			$saleList = array_reverse($sales->sales->sale);
+		}
 
-        foreach (array_reverse($sales->sales->sale) as $sale)
+        foreach ($saleList as $sale)
         {
             $this->processSale($sale);
         }
