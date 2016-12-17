@@ -9,7 +9,7 @@ Paraşüt ön muhasebe ve fatura programının pazaryerleri ile otomatik entegra
 
 #### Step: 1
 
-Paket bir Laravel paketi olduğu için öncelikle bir Laravel kurulumunuzun yapılmış olması gerekiyor. (Laravel nasıl kurulur: https://laravel.com/docs/5.3/installation)
+Paket bir Laravel paketi olduğu için öncelikle bir Laravel kurulumunuzun yapılmış olması gerekiyor. [Laravel nasıl kurulur.]( https://laravel.com/docs/5.3/installation)
 
 #### Step: 2 
 
@@ -168,7 +168,7 @@ Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyang
 ## Katılımcılar
 
 - [Salyangoz Teknoloji](https://github.com/salyangoz)
-- [Senol Örencik](https://github.com/yedincisenol)
+- [İbrahim Ş. Örencik](https://github.com/yedincisenol)
 - [Ece Bitiren](https://github.com/ecuci)
 
 ## Lisans
