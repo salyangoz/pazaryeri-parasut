@@ -7,14 +7,99 @@ Paraşüt ön muhasebe ve fatura programının pazaryerleri ile otomatik entegra
 
 ## Nasıl Yüklenir?
 
-Composer ile yüklemek
+#### Step: 1
+
+Paket bir Laravel paketi olduğu için öncelikle bir Laravel kurulumunuzun yapılmış olması gerekiyor. (Laravel nasıl kurulur: https://laravel.com/docs/5.3/installation)
+
+#### Step: 2 
+
+Paketi yüklemek için Laravel'in yüklü olduğu root klasörde aşağıdaki komutu çalıştırmanız gerekli
 
 ``` bash
-$ composer require salyangoz/parasut-pazaryeri
+$ composer require salyangoz/pazaryeri-parasut
 ```
 
-## Nasıl Kullanılır?
+#### Step: 3
 
+Eklentinin mevcut Laravel'de kullanılabilmesi için Laravel klasörünüzdeki Config/app.php'ye şu değişiklikleri eklemeniz gerekli:
+
+```php
+    'providers' => [
+        salyangoz\pazaryeriparasut\PazaryeriParasutServiceProvider.php::class
+    ],
+```
+
+Aynı dosyaya, Namespace yazmadan erişmek istenirse Alias'da ekleyebilirsiniz
+
+```php
+'aliases' => [
+    'PazaryeriParasut' => salyangoz\pazaryeriparasut\PazaryeriParasut::class
+    ],
+```
+
+#### Step: 4
+
+İşlenen siparişlerin tekrar aktarılmaması için, Paraşüte işlenen faturaların kayıt numaralarının tutulduğu Local store olarak kullanılacak `parasut-data.json` dosyasını `storage/app` dizinin içerisine oluşturmanız ve dosyanın yazılabilir olduğundan emin olmanız gerekli.
+
+#### Step 5: Enviroment ayarlamaları
+
+Paket, proje için kullanılacak N11,Gittigidiyor,Hepsiburada ve Paraşüt bilgilerinizi Laravel projenizdeki `.env` dosyasından alır. Hangi değişkenlerin kullanıldığını bu repodaki `.env-example` dosyasından bakabilirsiniz.
+
+##### Opsiyonel:
+
+Eğer projeniz için paketteki sabitleri değiştirmeniz gerekirse (ya da paketi geliştirmek isterseniz) config değerleri paket ayarlarını publish etmeniz gerekir bunu yapmak için aşağıdaki komutu kullanabilirsiniz:
+
+``
+php artisan vendor:publish --provider="salyangoz\pazaryeriparasut\PazaryeriParasutServiceProvider"
+``
+
+Bu komutu çalıştırmanız ardından paketin config.php dosyası Laravel projenizin config dizinine `pazaryeri-parasut.php` olarak kopyalanacaktır ve burda yaptığınız değişiklikler paket içindeki config dosyası ile birleşecek ya da overrite olacaktır.
+
+#### Step 6: Laravel task
+
+Paket siparişleri belirlenen aralıklarla Pazaryeri api servislerine istek yaparak göndermekte. Bunun da gerçekleşmesi için Laravel'e task eklememiz ve zamanlamak gerekli. Bunun için aşağıdaki örneği kullanabilirsiniz.
+
+`App\Console\Kernel.php`
+
+```php
+
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+
+    protected $commands = [
+        \salyangoz\pazaryeriparasut\Commands\Transfer::class
+    ];
+
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+		      $schedule->command('pazaryeriparasut:transfer')->everyFiveMinutes();
+    }
+
+    /**
+     * Register the Closure based commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        require base_path('routes/console.php');
+    }
+}
+```
+Artık hazırız!
+
+## Nasıl Kullanılır?
 
 ### Paraşüt API Konfigürasyon Süreçleri
 1. destek@parasut.com adresine Paraşüt'e kayıtlı olduğunuz e-posta adresinden API kullanmak istediğinizi ve bunun bilgilerini sizinle paylaşılmasını istediğiniz bir e-posta gönderiniz.
