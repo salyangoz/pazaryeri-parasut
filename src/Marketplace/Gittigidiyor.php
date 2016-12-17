@@ -46,16 +46,29 @@ class Gittigidiyor extends Marketplace
         if(isset($sale->invoiceInfo))
         {
             $address    =   $sale->invoiceInfo->address;
-            $tax        =   $sale->invoiceInfo->taxNumber ? $sale->invoiceInfo->taxNumber :  $sale->invoiceInfo->tcCertificate;
+            if(isset($sale->invoiceInfo->taxNumber))
+                $tax        =   $sale->invoiceInfo->taxNumber ? $sale->invoiceInfo->taxNumber :  $sale->invoiceInfo->tcCertificate;
+            else
+            {
+                $tax        =   $sale->invoiceInfo->tcCertificate;
+            }
             $district   =   $sale->invoiceInfo->district;
             $phone      =   $sale->invoiceInfo->phoneNumber;
-            $taxOffice  =   $sale->invoiceInfo->taxOffice ? $sale->invoiceInfo->taxOffice : $sale->buyerInfo->district;
-            if($sale->invoiceInfo->taxOffice)
+            if(isset($sale->invoiceInfo->taxOffice))
             {
-                $contactType    =   "company";
+                $taxOffice  =   $sale->invoiceInfo->taxOffice ? $sale->invoiceInfo->taxOffice : $sale->buyerInfo->district;
+            }
+            else
+            {
+                $taxOffice  =    $sale->buyerInfo->district;
+            }
+            if(isset($sale->invoiceInfo->taxOffice))
+            {
+                if($sale->invoiceInfo->taxOffice)
+                    $contactType    =   "company";
             }
 
-            $fullname   =   $sale->invoiceInfo->companyTitle;
+            $fullname   =   $sale->invoiceInfo->companyTitle ? $sale->invoiceInfo->companyTitle : $sale->invoiceInfo->fullname;
         }
         else
         {

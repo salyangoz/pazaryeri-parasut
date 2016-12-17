@@ -174,22 +174,29 @@ class ParasutAdapter
         if($this->localStorage->get("order.{$this->marketplace}_{$saleID}"))
             return;
 
-        /**
-         * Fatura kaydı oluşturuluyor
-         */
-        $response = $this->parasut->make('sale')->create($this->invoice);
+        try{
 
-        /**
-         * Fatura ödendi yapılıyor ve ödeme belirlenen hesap kasasına kaydediliyor
-         */
-        $this->parasut->make('sale')->paid(
-            $response['sales_invoice']['id'],
-            [   "amount"=>$total,
-                "date"=>date('Y-m-d'),
-                "account_id"=>Config('pazaryeri-parasut.parasut_account_id')]
-        );
+            /**
+             * Fatura kaydı oluşturuluyor
+             */
+            $response = $this->parasut->make('sale')->create($this->invoice);
 
-        $this->localStorage->set('order',"{$this->marketplace}_".$saleID,$response['sales_invoice']['id']);
-        $this->localStorage->save();
+            /**
+             * Fatura ödendi yapılıyor ve ödeme belirlenen hesap kasasına kaydediliyor
+             */
+            $this->parasut->make('sale')->paid(
+                $response['sales_invoice']['id'],
+                [   "amount"=>$total,
+                    "date"=>date('Y-m-d'),
+                    "account_id"=>Config('pazaryeri-parasut.parasut_account_id')]
+            );
+
+            $this->localStorage->set('order',"{$this->marketplace}_".$saleID,$response['sales_invoice']['id']);
+            $this->localStorage->save();
+
+        }catch (\Exception $e)
+        {
+            echo $e->getMessage()."\n";
+        }
     }
 }
