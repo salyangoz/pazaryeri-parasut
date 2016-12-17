@@ -17,6 +17,5 @@
         "psr-4": {
             "salyangoz\\pazaryeriparasut\\": "src"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
