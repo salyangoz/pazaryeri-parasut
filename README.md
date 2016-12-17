@@ -102,6 +102,12 @@ class Kernel extends ConsoleKernel
 
 Laravel task zamanlamanın da çalışır halde olduğundan emin olduktan olduğumuzda artık hazırız demektir!
 
+Aşağıdaki Konfigurasyonları da tamamladığınızda, taskın doğru çalışıp çalışmadığını, komut satırından doğrudan çalıştırarak test edebilirsiniz:
+
+``
+$ php artisan pazaryeriparasut:transfer
+``
+
 ## Nasıl Kullanılır?
 
 ### Paraşüt API Konfigürasyon Süreçleri
