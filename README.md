@@ -33,6 +33,12 @@ Eklentinin mevcut Laravel'de kullanılabilmesi için Laravel klasörünüzdeki C
 
 İşlenen siparişlerin tekrar aktarılmaması için, Paraşüte işlenen faturaların kayıt numaralarının tutulduğu Local store olarak kullanılacak `parasut-data.json` dosyasını `storage/app` dizinin içerisine oluşturmanız ve dosyanın yazılabilir olduğundan emin olmanız gerekli.
 
+Linux için örnek komut (Laravel root klasörüündeyken) :
+```sh
+$ touch storage/app/parasut-data.json
+$ chmod 777 storage/app/parasut-data.json
+```
+
 #### Step 5: Enviroment ayarlamaları
 
 Paket, proje için kullanılacak N11,Gittigidiyor,Hepsiburada ve Paraşüt bilgilerinizi Laravel projenizdeki `.env` dosyasından alır. Hangi değişkenlerin tanımlanacağını bu repodaki `.env.example` dosyasından bakabilirsiniz.
