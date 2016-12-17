@@ -1,6 +1,7 @@
 {
     "name": "salyangoz/parasut-pazaryeri",
-    "description": "An easy-to-use parasut.com API with N11, Gittigidiyor and Hepsiburada.",
+    "description": "Pazaryerlerini(N11,Gittigidiyor ve Hepsiburada) Paraşüt - Web Tabanlı Fatura ve Tahsilay Yönetimine bağlayan API Edit
+",
     "type": "Php",
     "require": {
         "mayoz/parasut": "^1.0",
