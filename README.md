@@ -15,9 +15,12 @@ $ composer require salyangoz/parasut-pazaryeri
 
 ## Nasıl Kullanılır?
 
+
 ### Paraşüt API Konfigürasyon Süreçleri
 1. destek@parasut.com adresine Paraşüt'e kayıtlı olduğunuz e-posta adresinden API kullanmak istediğinizi ve bunun bilgilerini sizinle paylaşılmasını istediğiniz bir e-posta gönderiniz.
 2. Gelen bilgilerden Application Id, Secret ve paraşüte giriş yaptığınızda üst linkte bulunan 6 haneyle başlayan numara bölümünü Config/Parasut-Pazaryeri.php dosyasına girin.
+
+#### Pazaryeri paraşüt entegrasyonu pazaryerlerinde kesilen Satış faturalarının otomatik olarak belirleyeceğiniz dakika aralıklarında Paraşüt'e işlenmesi için kullanılır. Paraşüt üzerinden e-Fatura mükellefi olan kullanıcılar bu sistemi kullandığında otomatik olarak Pazaryerlerinde onaylanmış veya kargoya hazır hale getirilmiş durumlarda faturaları kesilir.
 
 ### Gittigidiyor API Konfigürasyon Süreçleri
 1. http://dev.gittigidiyor.com adresinden mağazanızın bilgileri ile giriş yapın. 
