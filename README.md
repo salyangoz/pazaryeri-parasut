@@ -16,6 +16,8 @@ $ composer require salyangoz/parasut-pazaryeri
 ## Nasıl Kullanılır?
 
 ### Paraşüt API Konfigürasyon Süreçleri
+1. destek@parasut.com adresine Paraşüt'e kayıtlı olduğunuz e-posta adresinden API kullanmak istediğinizi ve bunun bilgilerini sizinle paylaşılmasını istediğiniz bir e-posta gönderiniz.
+2. Gelen bilgilerden Application Id, Secret ve paraşüte giriş yaptığınızda üst linkte bulunan 6 haneyle başlayan numara bölümünü Config/Parasut-Pazaryeri.php dosyasına girin.
 
 ### Gittigidiyor API Konfigürasyon Süreçleri
 1. http://dev.gittigidiyor.com adresinden mağazanızın bilgileri ile giriş yapın. 
@@ -23,6 +25,9 @@ $ composer require salyangoz/parasut-pazaryeri
 3. Yeni API anahtarı almak için tıklayın. 
 4. Anahtar bilgilerini Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere girin.
 5. Daha sonra gittigidiyor üzerinde AUTH_USERNAME ve AUTH_PASSWORD alabilmek için gittigidiyor destek ekibine api.destek@gittigidiyor.com mail adresine mesaj atın. Aşağıda demo mesajı görebilirsiniz. 
+6. Gelen bilgileri Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere işleyebilirsiniz.
+
+#### Paraşüt gittigidiyor entegrasyonunun çalışabilmesi için Server veya Hosting ayarlarınızda 8080 ve 8443 portlarının açık olması gerekmektedir.
 
 ``` 
 
@@ -50,14 +55,15 @@ Firma Email Adresi:
 Firma Telefonu:
 ```
 
-6. Gelen bilgileri Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere -TODO hangi alanların olduğu işleyebilirsiniz.
-
 ### N11 API Konfigürasyon Süreçleri
 1. http://so.n11.com adresinden mağazanızın bilgileri ile giriş yapın.
 2. Yukarıda bulunan Hesabım - API Hesapları menüsüne girdikten sonra +Yeni Hesap Oluştur buttonuna tıklayın. Bilgilerinizi mağazanızın kayıtlı olduğu e-posta adresinize gelecektir.
-3. Bu bilgileri -TODO kolon adlarını Config/Parasut-Pazaryeri.php dosyasına girin.
+3. Bu bilgileri Config/Parasut-Pazaryeri.php dosyasına girin.
 
 ### Hepsiburada Konfigürasyon Süreçleri
+
+1. mpentegrasyon@hepsiburada.com adresine Hepsiburada mağazasına kayıtlı olan e-posta ile Test ve Canlı entegrasyon bilgilerini isteyiniz. 
+2. Gönderilen Portal Kullanıcı Adı, Şifre ve Merchant ID bölümlerini Config/Parasut-Pazaryeri.php dosyasına girin.
 
 ## Güvenlik
 
