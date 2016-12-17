@@ -9,7 +9,7 @@ Paraşüt ön muhasebe ve fatura programının pazaryerleri ile otomatik entegra
 
 #### Step: 1
 
-Paket bir Laravel paketi olduğu için öncelikle bir Laravel kurulumunuzun yapılmış olması gerekiyor. (Laravel nasıl kurulur: https://laravel.com/docs/5.3/installation)
+Paket bir Laravel paketi olduğu için öncelikle bir Laravel kurulumunuzun yapılmış olması gerekiyor. [Laravel nasıl kurulur.]( https://laravel.com/docs/5.3/installation)
 
 #### Step: 2 
 
@@ -25,15 +25,7 @@ Eklentinin mevcut Laravel'de kullanılabilmesi için Laravel klasörünüzdeki C
 
 ```php
     'providers' => [
-        salyangoz\pazaryeriparasut\PazaryeriParasutServiceProvider.php::class
-    ],
-```
-
-Aynı dosyaya, Namespace yazmadan erişmek istenirse Alias'da ekleyebilirsiniz
-
-```php
-'aliases' => [
-    'PazaryeriParasut' => salyangoz\pazaryeriparasut\PazaryeriParasut::class
+        salyangoz\pazaryeriparasut\PazaryeriParasutServiceProvider::class
     ],
 ```
 
@@ -41,9 +33,15 @@ Aynı dosyaya, Namespace yazmadan erişmek istenirse Alias'da ekleyebilirsiniz
 
 İşlenen siparişlerin tekrar aktarılmaması için, Paraşüte işlenen faturaların kayıt numaralarının tutulduğu Local store olarak kullanılacak `parasut-data.json` dosyasını `storage/app` dizinin içerisine oluşturmanız ve dosyanın yazılabilir olduğundan emin olmanız gerekli.
 
+Linux için örnek komut (Laravel root klasörüündeyken) :
+```sh
+$ touch storage/app/parasut-data.json
+$ chmod 777 storage/app/parasut-data.json
+```
+
 #### Step 5: Enviroment ayarlamaları
 
-Paket, proje için kullanılacak N11,Gittigidiyor,Hepsiburada ve Paraşüt bilgilerinizi Laravel projenizdeki `.env` dosyasından alır. Hangi değişkenlerin kullanıldığını bu repodaki `.env-example` dosyasından bakabilirsiniz.
+Paket, proje için kullanılacak N11,Gittigidiyor,Hepsiburada ve Paraşüt bilgilerinizi Laravel projenizdeki `.env` dosyasından alır. Hangi değişkenlerin tanımlanacağını bu repodaki `.env.example` dosyasından bakabilirsiniz.
 
 ##### Opsiyonel:
 
@@ -97,7 +95,18 @@ class Kernel extends ConsoleKernel
     }
 }
 ```
-Artık hazırız!
+
+Önemli Not: Laravel task zamanlayıcının çalışması için Web sunucunuzda cron'un çalışıyor olması gerekli.
+
+[Laravel task zamanlama nasıl tanımlanır](https://laravel.com/docs/5.3/scheduling)
+
+Laravel task zamanlamanın da çalışır halde olduğundan emin olduktan olduğumuzda artık hazırız demektir!
+
+Aşağıdaki Konfigurasyonları da tamamladığınızda, taskın doğru çalışıp çalışmadığını, komut satırından doğrudan çalıştırarak test edebilirsiniz:
+
+``
+$ php artisan pazaryeriparasut:transfer
+``
 
 ## Nasıl Kullanılır?
 
@@ -168,7 +177,7 @@ Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyang
 ## Katılımcılar
 
 - [Salyangoz Teknoloji](https://github.com/salyangoz)
-- [Senol Örencik](https://github.com/yedincisenol)
+- [İbrahim Ş. Örencik](https://github.com/yedincisenol)
 - [Ece Bitiren](https://github.com/ecuci)
 
 ## Lisans
