@@ -25,15 +25,7 @@ Eklentinin mevcut Laravel'de kullanılabilmesi için Laravel klasörünüzdeki C
 
 ```php
     'providers' => [
-        salyangoz\pazaryeriparasut\PazaryeriParasutServiceProvider.php::class
-    ],
-```
-
-Aynı dosyaya, Namespace yazmadan erişmek istenirse Alias'da ekleyebilirsiniz
-
-```php
-'aliases' => [
-    'PazaryeriParasut' => salyangoz\pazaryeriparasut\PazaryeriParasut::class
+        salyangoz\pazaryeriparasut\PazaryeriParasutServiceProvider::class
     ],
 ```
 
