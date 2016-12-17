@@ -43,7 +43,7 @@ Aynı dosyaya, Namespace yazmadan erişmek istenirse Alias'da ekleyebilirsiniz
 
 #### Step 5: Enviroment ayarlamaları
 
-Paket, proje için kullanılacak N11,Gittigidiyor,Hepsiburada ve Paraşüt bilgilerinizi Laravel projenizdeki `.env` dosyasından alır. Hangi değişkenlerin kullanıldığını bu repodaki `.env-example` dosyasından bakabilirsiniz.
+Paket, proje için kullanılacak N11,Gittigidiyor,Hepsiburada ve Paraşüt bilgilerinizi Laravel projenizdeki `.env` dosyasından alır. Hangi değişkenlerin tanımlanacağını bu repodaki `.env.example` dosyasından bakabilirsiniz.
 
 ##### Opsiyonel:
 
