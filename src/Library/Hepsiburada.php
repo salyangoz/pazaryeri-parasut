@@ -13,9 +13,9 @@ class Hepsiburada
 	
 	public function __construct(array $config)
 	{
-		$this->username = array_get($config,'username');
-		$this->password	= array_get($config,'password');
-		$this->merchantID	=	array_get($config,'merchant_id');
+		$this->username         =   array_get($config,'username');
+		$this->password	        =   array_get($config,'password');
+		$this->merchantID	    =   array_get($config,'merchant_id');
 		$this->orderEndpoint	=	array_get($config,'order_endpoint');
 	}
 

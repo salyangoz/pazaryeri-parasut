@@ -6,7 +6,7 @@ use salyangoz\pazaryeriparasut;
 
 class Hepsiburada extends Marketplace
 {
-	
+
 	private $hepsiburada;
 	
 	public function __construct(array $config)

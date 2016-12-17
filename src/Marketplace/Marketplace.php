@@ -36,29 +36,5 @@ abstract class MarketPlace
     public function sales(){}
 
     public function transfer(){}
-    private function contact($sale){}
-    private function invoiceDescription($sale){}
-    private function product($item){}
 
-    protected function createContact($customerDetails)
-    {
-
-        return $this->parasut->make('contact')->create(
-            [
-                'contact_type'  => array_get($customerDetails,'contact_type'),
-                'name' => array_get($customerDetails['billing'], 'title'),
-                'email' => $customerDetails['email'],
-                'tax_number' => array_get($customerDetails['billing'], 'number'),
-                'tax_office' => array_get($customerDetails['billing'], 'office'),
-                'category_id' => null,
-                'address_attributes' => [
-                    'address' => array_get($customerDetails['billing'], 'address'),
-                    'phone' => $customerDetails['phone'],
-                    'fax' => null,
-                ],
-                'city'     =>array_get($customerDetails['billing'],'city'),
-                'district' =>array_get($customerDetails['billing'],'district')
-            ]
-        );
-    }
 }

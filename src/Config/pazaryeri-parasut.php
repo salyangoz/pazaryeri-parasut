@@ -3,7 +3,7 @@
 return [
     "n11_app_key"                       =>  env('N11_APP_KEY'),
     "n11_app_secret"                    =>  env('N11_APP_SECRET'),
-    'n11_base_url'                      =>  "https://api.n11.com/ws/", //Bunu env'ye bağlamadım çünkü kullanıcıdan kullanıcıya değişen bir değer değil. Değiştiğinde tüm kullanıcıların env güncellemesine gerek kalmaması için burada tanımladım.
+    'n11_base_url'                      =>  "https://api.n11.com/ws/",
     'parasut_client_id'                 =>  env('PARASUT_CLIENT_ID'),
     'parasut_client_secret'             =>  env('PARASUT_CLIENT_SECRET'),
     'parasut_username'                  =>  env('PARASUT_USERNAME'),
