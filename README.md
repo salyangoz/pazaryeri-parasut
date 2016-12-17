@@ -97,7 +97,12 @@ class Kernel extends ConsoleKernel
     }
 }
 ```
-Artık hazırız!
+
+Önemli Not: Laravel task zamanlayıcının çalışması için Web sunucunuzda cron'un çalışıyor olması gerekli.
+
+[Laravel task zamanlama nasıl tanımlanır](https://laravel.com/docs/5.3/scheduling)
+
+Laravel task zamanlamanın da çalışır halde olduğundan emin olduktan olduğumuzda artık hazırız demektir!
 
 ## Nasıl Kullanılır?
 
