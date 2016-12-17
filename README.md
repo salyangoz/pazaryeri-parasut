@@ -72,6 +72,14 @@ Firma Telefonu:
 
 Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyangoz.com.tr adresine bildirim yapabilirsiniz.
 
+## Geliştirilme Platformu
+
+* [Laravel](www.laravel.com) - PHP Framework For Web Artisans
+
+## Versiyonlama
+
+* [SemVer](http://semver.org/) versiyonlamayı kullanıyoruz. Versiyonlamaları görebilmek için [tag](https://github.com/salyangoz/pazaryeri-parasut/tags) bölümünü ziyaret edin.
+
 ## Katılımcılar
 
 - [Salyangoz Teknoloji](https://github.com/salyangoz)
@@ -81,3 +89,7 @@ Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyang
 ## Lisans
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+
+## Ekstralar
+
+[Salyangoz Web Adresi](https://www.salyangoz.com.tr)
