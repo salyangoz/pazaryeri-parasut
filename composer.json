@@ -16,10 +16,7 @@
     "autoload": {
         "psr-4": {
             "salyangoz\\pazaryeriparasut\\": "src"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+        }
     },
     "minimum-stability": "dev"
 }
