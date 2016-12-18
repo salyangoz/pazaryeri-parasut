@@ -1,6 +1,17 @@
 {
     "name": "salyangoz/pazaryeri-parasut",
     "description": "Pazaryerlerini(N11,Gittigidiyor ve Hepsiburada) Paraşüt - Web Tabanlı Fatura ve Tahsilat Yönetimine bağlayan Laravel Paketi",
+    "version": "1.0.0",
+    "keywords": [
+       "gateway",
+       "parasut",
+       "invoice",
+       "fatura",
+       "pazaryeri",
+       "N11",
+       "Gittigidiyor",
+       "Hepsiburada"
+   ],
     "type": "Php",
     "require": {
         "mayoz/parasut": "^1.0",
