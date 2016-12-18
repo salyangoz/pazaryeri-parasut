@@ -108,9 +108,9 @@ Aşağıdaki Konfigurasyonları da tamamladığınızda, taskın doğru çalış
 $ php artisan pazaryeriparasut:transfer
 ``
 
-## Nasıl Kullanılır?
+## Nasıl Kullanılır?
 
-### Paraşüt API Konfigürasyon Süreçleri
+### Paraşüt API Konfigürasyon Süreçleri
 1. destek@parasut.com adresine Paraşüt'e kayıtlı olduğunuz e-posta adresinden API kullanmak istediğinizi ve bunun bilgilerini sizinle paylaşılmasını istediğiniz bir e-posta gönderiniz.
 2. Gelen bilgilerden Application Id, Secret ve paraşüte giriş yaptığınızda üst linkte bulunan 6 haneyle başlayan numara bölümünü Config/Parasut-Pazaryeri.php dosyasına girin.
 
@@ -166,11 +166,11 @@ Firma Telefonu:
 
 Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyangoz.com.tr adresine bildirim yapabilirsiniz.
 
-## Geliştirilme Platformu
+## Geliştirilme Platformu
 
 * [Laravel](www.laravel.com) - PHP Framework For Web Artisans
 
-## Versiyonlama
+## Versiyonlama
 
 * [SemVer](http://semver.org/) versiyonlamayı kullanıyoruz. Versiyonlamaları görebilmek için [tag](https://github.com/salyangoz/pazaryeri-parasut/tags) bölümünü ziyaret edin.
 
@@ -184,6 +184,6 @@ Herhangi bir güvenlik açığı yakalarsanız, issue açmak yerine info@salyang
 
 The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
 
-## Ekstralar
+## Ekstralar
 
 [Salyangoz Web Adresi](https://www.salyangoz.com.tr)
