@@ -112,7 +112,17 @@ $ php artisan pazaryeriparasut:transfer
 
 ### Paraşüt API Konfigürasyon Süreçleri
 1. destek@parasut.com adresine Paraşüt'e kayıtlı olduğunuz e-posta adresinden API kullanmak istediğinizi ve bunun bilgilerini sizinle paylaşılmasını istediğiniz bir e-posta gönderiniz.
-2. Gelen bilgilerden Application Id, Secret ve paraşüte giriş yaptığınızda üst linkte bulunan 6 haneyle başlayan numara bölümünü Config/Parasut-Pazaryeri.php dosyasına girin.
+2. Gelen bilgilerden Application Id, Secret ve paraşüte giriş yaptığınızda üst linkte bulunan 6 haneyle başlayan numara bölümünü ve faturalarınız için açacağınız kategori idsini projenizin .env dosyasına girin.
+
+```
+PARASUT_CLIENT_ID=
+PARASUT_CLIENT_SECRET=
+PARASUT_USERNAME=
+PARASUT_COMPANY_ID=
+PARASUT_PASSWORD=
+PARASUT_CATEGORY_ID=
+PARASUT_ACCOUNT_ID=
+```
 
 #### Pazaryeri paraşüt entegrasyonu pazaryerlerinde kesilen Satış faturalarının otomatik olarak belirleyeceğiniz dakika aralıklarında Paraşüt'e işlenmesi için kullanılır. Paraşüt üzerinden e-Fatura mükellefi olan kullanıcılar bu sistemi kullandığında otomatik olarak Pazaryerlerinde onaylanmış veya kargoya hazır hale getirilmiş durumlarda faturaları kesilir.
 
@@ -122,7 +132,17 @@ $ php artisan pazaryeriparasut:transfer
 3. Yeni API anahtarı almak için tıklayın. 
 4. Anahtar bilgilerini Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere girin.
 5. Daha sonra gittigidiyor üzerinde AUTH_USERNAME ve AUTH_PASSWORD alabilmek için gittigidiyor destek ekibine api.destek@gittigidiyor.com mail adresine mesaj atın. Aşağıda demo mesajı görebilirsiniz. 
-6. Gelen bilgileri Config/Parasut-Pazaryeri.php dosyası içindeki bilgilere işleyebilirsiniz.
+6. Gelen bilgileri laravel projenizin .env dosyası içindeki bilgilere işleyebilirsiniz.
+
+```
+GITTIGIDIYOR_API_KEY=
+GITTIGIDIYOR_SECRET_KEY=
+GITTIGIDIYOR_USERNAME=
+GITTIGIDIYOR_PASSWORD=
+GITTIGIDIYOR_AUTH_USER=
+GITTIGIDIYOR_AUTH_PASSWORD=
+GITTIGIDIYOR_LANG=tr
+```
 
 #### Paraşüt gittigidiyor entegrasyonunun çalışabilmesi için Server veya Hosting ayarlarınızda 8080 ve 8443 portlarının açık olması gerekmektedir.
 
@@ -155,12 +175,23 @@ Firma Telefonu:
 ### N11 API Konfigürasyon Süreçleri
 1. http://so.n11.com adresinden mağazanızın bilgileri ile giriş yapın.
 2. Yukarıda bulunan Hesabım - API Hesapları menüsüne girdikten sonra +Yeni Hesap Oluştur buttonuna tıklayın. Bilgilerinizi mağazanızın kayıtlı olduğu e-posta adresinize gelecektir.
-3. Bu bilgileri Config/Parasut-Pazaryeri.php dosyasına girin.
+3. Bu bilgileri laravel projenizin .env dosyasına girin.
+
+```
+N11_APP_KEY=
+N11_APP_SECRET=
+```
 
 ### Hepsiburada Konfigürasyon Süreçleri
 
 1. mpentegrasyon@hepsiburada.com adresine Hepsiburada mağazasına kayıtlı olan e-posta ile Test ve Canlı entegrasyon bilgilerini isteyiniz. 
-2. Gönderilen Portal Kullanıcı Adı, Şifre ve Merchant ID bölümlerini Config/Parasut-Pazaryeri.php dosyasına girin.
+2. Gönderilen Portal Kullanıcı Adı, Şifre ve Merchant ID bölümlerini laravel projenizdeki .env dosyasına girin.
+
+```
+HEPSIBURADA_USERNAME=
+HEPSIBURADA_MERCHANT_ID=
+HEPSIBURADA_PASSWORD=
+```
 
 ## Güvenlik
 
