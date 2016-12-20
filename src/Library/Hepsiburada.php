@@ -20,13 +20,13 @@ class Hepsiburada
 	}
 
     /**
-     * Son 24 saate gerçekeşen “unpacked” ve “open” durumundaki siparişleri döndürür
+     * Son 120 saate gerçekeşen “unpacked” ve “open” durumundaki siparişleri döndürür
      * @return mixed
      */
 	public function orders()
 	{
 		$client = new GuzzleHttp\Client();
-		$res = $client->request('GET', $this->orderEndpoint."packages/merchantid/{$this->merchantID}",
+		$res = $client->request('GET', $this->orderEndpoint."packages/merchantid/{$this->merchantID}?timespan=120",
 			['auth' => [$this->username,$this->password],'verify' => false]
 		);
 		

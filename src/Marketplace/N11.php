@@ -39,7 +39,7 @@ class N11 extends Marketplace
                     "productSellerCode" =>'',
                     "recipient"=> '',
                     "period"=>[
-                        "startDate"=> date_create('-1 day')->format('d/m/Y'),
+                        "startDate"=> date_create('-5 day')->format('d/m/Y'),
                         "endDate"=> date_create('now')->format('d/m/Y')
                     ]
                 ]
