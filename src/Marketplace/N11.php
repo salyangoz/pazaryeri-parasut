@@ -25,7 +25,7 @@ class N11 extends Marketplace
      * n11 son 1 gün içerisindeki Siparişlerini getirir
      * @return array
      */
-    public function sales()
+    protected function sales()
     {
         $sales = [];
 
@@ -33,7 +33,7 @@ class N11 extends Marketplace
             $orderList  = $this->n11->DetailedOrderList(
                 [
                     "productId"=>'',
-                    "status"=> 'Approved',
+                    "status"=> 'Completed',
                     "buyerName"=> '',
                     "orderNumber"=> '',
                     "productSellerCode" =>'',
@@ -46,11 +46,23 @@ class N11 extends Marketplace
             );
 
             $this->n11->checkResponse($orderList);
+
+            if(!isset($orderList->orderList))
+                return [];
 			
 			if(!isset($orderList->orderList->order))
 				return [];
 
-            foreach($orderList->orderList->order as $order){
+            if(is_object($orderList->orderList->order))
+            {
+                $orders[]  =   $orderList->orderList->order;
+            }
+            else
+            {
+                $orders     =   $orderList->orderList->order;
+            }
+
+            foreach($orders as $order){
 
                 $orderDetail  = $this->n11->OrderDetail([
                     "id" => $order->id
@@ -76,12 +88,12 @@ class N11 extends Marketplace
 
         foreach ($sales as $sale)
         {
-            $this->process_sale($sale);
+            $this->processSale($sale);
 
         }
     }
 
-    private function process_sale($sale)
+    protected function processSale($sale)
     {
 
         $this->parasutAdapter   =   new pazaryeriparasut\ParasutAdapter($this->config,"N11");
@@ -135,7 +147,7 @@ class N11 extends Marketplace
 
             foreach ($items as $i)
             {
-                $this->parasutAdapter->addProduct($i->productName,$i->productId,$i->quantity,($i->dueAmount / $i->quantity));
+                $this->parasutAdapter->addProduct($i->productName,$i->productId,$i->quantity,($i->sellerInvoiceAmount / $i->quantity));
                 $invoiceDescription.=$i->productName." ";
                 $total+=$i->dueAmount/$i->quantity;
 
@@ -143,7 +155,7 @@ class N11 extends Marketplace
 
         }
 
-        $this->parasutAdapter->saveInvoice($sale->id,$sale->billingTemplate->dueAmount,$invoiceDescription,date('Y-m-d'));
+        $this->parasutAdapter->saveInvoice($sale->id,$sale->billingTemplate->sellerInvoiceAmount,$invoiceDescription,date('Y-m-d'),$taxNumber);
 
     }
 

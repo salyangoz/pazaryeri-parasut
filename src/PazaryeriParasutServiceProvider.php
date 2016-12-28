@@ -2,7 +2,9 @@
 
 namespace salyangoz\pazaryeriparasut;
 
+use salyangoz\pazaryeriparasut\Commands\MigrateLocalStorageToDB;
 use salyangoz\pazaryeriparasut\Commands\Transfer;
+use salyangoz\pazaryeriparasut\Commands\TransferEInvoice;
 use Illuminate\Support\ServiceProvider;
 
 class PazaryeriParasutServiceProvider extends ServiceProvider
@@ -16,7 +18,8 @@ class PazaryeriParasutServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                Transfer::class
+                Transfer::class,
+                TransferEInvoice::class
             ]);
         }
 
@@ -39,6 +42,14 @@ class PazaryeriParasutServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/Config/pazaryeri-parasut.php', 'pazaryeri-parasut'
         );
+
+        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
+
+        $this->loadViewsFrom(__DIR__ . '/Resources/Views', 'pazaryeri-parasut');
+
+        $this->publishes([
+            __DIR__ . '//Resources/Views' => resource_path('views/salyangoz/pazaryeri-parasut'),
+        ]);
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+// Todo: İsimlen yeniden düzenlenecek
+
 return [
     "n11_app_key"                       =>  env('N11_APP_KEY'),
     "n11_app_secret"                    =>  env('N11_APP_SECRET'),
@@ -23,5 +25,28 @@ return [
 	'hepsiburada_order_endpoint'		=>	'https://oms-external.hepsiburada.com/',
 	'hepsiburada_username'				=>	env('HEPSIBURADA_USERNAME'),
 	'hepsiburada_password'				=>	env('HEPSIBURADA_PASSWORD'),
-	'hepsiburada_merchant_id'			=>	env('HEPSIBURADA_MERCHANT_ID')
+	'hepsiburada_merchant_id'			=>	env('HEPSIBURADA_MERCHANT_ID'),
+    'einvoice_payment_type'             =>  "ODEMEARACISI",
+    'einvoice_vat_withholding_code'     =>  "350",
+
+    'ses' => [
+        'key'           => env('SES_KEY'),
+        'secret'        => env('SES_SECRET'),
+        'region'        => env('SES_REGION'),
+    ],
+
+    'mail' => [
+        'from_email'   => env('MAIL_FROM_EMAIL'),
+        'from_name'    => env('MAIL_FROM_NAME'),
+        'cc_email'     => env('MAIL_CC_EMAIL')
+    ],
+
+    'aws'   =>  [
+        'invoice_bucket'        => env('AWS_INVOICE_BUCKET'),
+        'invoice_bucket_url'    => env('AWS_INVOICE_BUCKET_URL')
+    ],
+
+    'marketplace'   =>  [
+        'name'  =>  env('MARKETPLACE_NAME')
+    ]
 ];

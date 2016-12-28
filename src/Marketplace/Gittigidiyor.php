@@ -14,15 +14,15 @@ class Gittigidiyor extends Marketplace
         parent::__construct($config);
 
         $gittigidiyorConfig =   [
-            'apiKey'            =>  array_get($config,'gittigidiyor_api_key'),
-            'secretKey'         =>  array_get($config,'gittigidiyor_secret_key'),
-            'nick'              =>  array_get($config,'gittigidiyor_username'),
-            'password'          =>  array_get($config,'gittigidiyor_password'),
-            'auth_user'         =>  array_get($config,'gittigidiyor_auth_user'),
-            'auth_pass'         =>  array_get($config,'gittigidiyor_auth_password'),
-            'lang'              =>  array_get($config,'gittigidiyor_lang'),
-            'developer_base_url'=>  array_get($config,'gittigidiyor_developer_base_url'),
-            'product_base_url'  =>  array_get($config,'gittigidiyor_product_base_url')
+            'apiKey'            =>  array_get($config, 'gittigidiyor_api_key'),
+            'secretKey'         =>  array_get($config, 'gittigidiyor_secret_key'),
+            'nick'              =>  array_get($config, 'gittigidiyor_username'),
+            'password'          =>  array_get($config, 'gittigidiyor_password'),
+            'auth_user'         =>  array_get($config, 'gittigidiyor_auth_user'),
+            'auth_pass'         =>  array_get($config, 'gittigidiyor_auth_password'),
+            'lang'              =>  array_get($config, 'gittigidiyor_lang'),
+            'developer_base_url'=>  array_get($config, 'gittigidiyor_developer_base_url'),
+            'product_base_url'  =>  array_get($config, 'gittigidiyor_product_base_url')
         ];
 
         $this->gittigidiyor =   new pazaryeriparasut\Library\Gittigidiyor($gittigidiyorConfig);
@@ -32,14 +32,22 @@ class Gittigidiyor extends Marketplace
      * Bir satışı işler
      * @param $sale
      */
-    private function processSale($sale)
+    protected function processSale($sale)
     {
+
+        $format = "d/m/Y H:i:s";
+        $date = \DateTime::createFromFormat($format, $sale->lastActionDate);
+
+        if(!($date->getTimestamp() >= strtotime("-5 day")))
+        {
+            return;
+        }
 
         /** Sipari tutarı 0 tl ise atlıyor */
         if($sale->price == 0)
             return;
 
-        $parasutAdapter =   new pazaryeriparasut\ParasutAdapter($this->config,"GG");
+        $parasutAdapter =   new pazaryeriparasut\ParasutAdapter($this->config, "GG");
 
         $contactType    =   "person";
 
@@ -88,27 +96,27 @@ class Gittigidiyor extends Marketplace
             $sale->buyerInfo->city,
             $district,
             $phone,
-            ""
+            $sale->buyerInfo->email
             );
 
 
-        $parasutAdapter->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price);
+        $parasutAdapter->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price / $sale->amount);
 
-        $parasutAdapter->saveInvoice($sale->saleCode,$sale->price,$sale->productTitle, date('Y-m-d'));
+        $parasutAdapter->saveInvoice($sale->saleCode,$sale->price,$sale->productTitle, date('Y-m-d'),$tax);
     }
 
-    private function process($page=1)
+    protected function sales($page=1)
     {
 
-        $sales = $this->gittigidiyor->getPagedSales(true, 'S', '', 'A', 'D', $page);
-		
+        $sales = $this->gittigidiyor->getPagedSales(true, 'O', '', 'A', 'D', $page);
+
 		if(!is_array($sales->sales->sale))
 		{
 			$saleList = $sales->sales;
 		}
 		else
 		{
-			$saleList = array_reverse($sales->sales->sale);
+			$saleList = $sales->sales->sale;
 		}
 
         foreach ($saleList as $sale)
@@ -116,12 +124,14 @@ class Gittigidiyor extends Marketplace
             $this->processSale($sale);
         }
 
+        $page++;
+
         if($sales->nextPageAvailable)
-            return $this->process($page++);
+            return $this->sales($page);
     }
 
     public function transfer()
     {
-        $this->process();
+        $this->sales();
     }
 }

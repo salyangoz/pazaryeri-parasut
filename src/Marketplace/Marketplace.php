@@ -33,8 +33,9 @@ abstract class MarketPlace
 
     }
 
-    public function sales(){}
+    abstract protected function sales();
 
-    public function transfer(){}
+    abstract protected function processSale($sale);
 
+    abstract public function transfer();
 }

@@ -14,10 +14,10 @@ class Hepsiburada extends Marketplace
         parent::__construct($config);
 
 		$hbConfig	=	[
-			'username'		=>array_get($config,'hepsiburada_username'),
-			'password'		=>array_get($config,'hepsiburada_password'),
-			'order_endpoint'=>array_get($config,'hepsiburada_order_endpoint'),
-			'merchant_id'	=>array_get($config,'hepsiburada_merchant_id')
+			'username'		=>array_get($config, 'hepsiburada_username'),
+			'password'		=>array_get($config, 'hepsiburada_password'),
+			'order_endpoint'=>array_get($config, 'hepsiburada_order_endpoint'),
+			'merchant_id'	=>array_get($config, 'hepsiburada_merchant_id')
 		];
 		
 		$this->hepsiburada	    =	new pazaryeriparasut\Library\Hepsiburada($hbConfig);
@@ -25,14 +25,20 @@ class Hepsiburada extends Marketplace
 	
 	public function transfer()
 	{
-		$orders = $this->hepsiburada->orders();
+		$orders = $this->sales();
+
         foreach ($orders as $order)
         {
-            $this->process_sale($order);
+            $this->processSale($order);
         }
 	}
 
-	private function process_sale($sale)
+	protected function sales()
+    {
+        return $this->hepsiburada->orders();
+    }
+
+    protected function processSale($sale)
     {
         $this->parasutAdapter   =   new pazaryeriparasut\ParasutAdapter($this->config,"HB");
 
@@ -53,23 +59,31 @@ class Hepsiburada extends Marketplace
             if(!$taxNumber) $taxNumber  =   11111111111;
         }
 
-        $this->parasutAdapter->setContact($contactType,$sale->customerId,$sale->companyName,
+        $this->parasutAdapter->setContact($contactType,
+            $sale->customerId,
+            $sale->companyName,
             $sale->billingAddress." ".$sale->billingDistrict." / ".$sale->billingCity,
-            $taxNumber,$sale->taxOffice,$sale->billingCity,$sale->billingDistrict,$sale->phoneNumber,$sale->email
-            );
+            $taxNumber,
+            $sale->taxOffice,
+            $sale->billingCity,
+            $sale->billingDistrict,
+            $sale->phoneNumber,
+            $sale->email);
 
         $total = 0;
         $description    =   "";
 
         foreach ($sale->items as $product)
         {
-            $this->parasutAdapter->addProduct($product->productName,$product->lineItemId,$product->quantity,$product->price->amount);
+            $this->parasutAdapter->addProduct($product->productName,$product->lineItemId,
+                $product->quantity,$product->price->amount);
+
             $total+=($product->price->amount*$product->quantity);
 
             $description    =   $product->productName." ";
         }
 
-        $this->parasutAdapter->saveInvoice($sale->id,$total,$description,date('Y-m-d'));
+        $this->parasutAdapter->saveInvoice($sale->id,$total,$description,date('Y-m-d'),$taxNumber);
 
     }
 }

@@ -3,24 +3,28 @@
 namespace salyangoz\pazaryeriparasut;
 
 use Parasut\Client as ParasutClient;
+use Illuminate\Support\Facades\App;
+use Mail;
 
 class ParasutAdapter
 {
-    protected $parasut;
+    public $parasut;
     protected $localStorage;
     protected $invoice  =   [];
     protected $marketplace;
+    protected $eInvoiceDefaults;
+    protected $paymentPlatforms;
 
 
     public function __construct(array $config, $marketplace)
     {
         // create a new client instance
         $this->parasut = new ParasutClient([
-            'client_id'     => array_get($config,'parasut_client_id'),
-            'client_secret' => array_get($config,'parasut_client_secret'),
-            'username'      => array_get($config,'parasut_username'),
-            'password'      => array_get($config,'parasut_password'),
-            'company_id'    => array_get($config,'parasut_company_id'),
+            'client_id'     => array_get($config, 'parasut_client_id'),
+            'client_secret' => array_get($config, 'parasut_client_secret'),
+            'username'      => array_get($config, 'parasut_username'),
+            'password'      => array_get($config, 'parasut_password'),
+            'company_id'    => array_get($config, 'parasut_company_id'),
             'grant_type'    => 'password',
             'redirect_uri'  => 'urn:ietf:wg:oauth:2.0:oob',
         ]);
@@ -30,6 +34,22 @@ class ParasutAdapter
         $this->localStorage =   new LocalStorage();
 
         $this->marketplace = $marketplace;
+
+        $paymentPlatforms   =   [
+            "HB"    =>  "Hepsiburada",
+            "GG"    =>  "Gittigidiyor",
+            "N11"   =>  "N11"
+        ];
+
+        $this->paymentPlatforms =   $paymentPlatforms;
+
+        $this->eInvoiceDefaults =   [
+            'internet_sale'         =>[
+                "payment_type"      =>config("pazaryeri-parasut.einvoice_payment_type"),
+                "payment_platform"  => $paymentPlatforms[$this->marketplace]
+            ],
+            'vat_withholding_code'  =>config("pazaryeri-parasut.einvoice_vat_withholding_code")
+        ];
 
     }
 
@@ -67,10 +87,10 @@ class ParasutAdapter
     {
         if(!$parasutProductID = $this->localStorage->get("product.{$this->marketplace}_".$productID))
         {
-            $product = $this->createProduct(["name"=>$productName,"code"=>"{$this->marketplace}_".$productID]);
+            $product = $this->createProduct(["name"=>$productName, "code"=>"{$this->marketplace}_".$productID]);
 
             $parasutProductID = $product['product']['id'];
-            $this->localStorage->set('product',"{$this->marketplace}_{$productID}",$parasutProductID);
+            $this->localStorage->set('product',"{$this->marketplace}_{$productID}", $parasutProductID);
             $this->localStorage->save();
         }
 
@@ -156,16 +176,16 @@ class ParasutAdapter
      * @param $invoiceDescription
      * @param $invoiceDate
      */
-    public function saveInvoice($saleID,$total,$invoiceDescription,$invoiceDate)
+    public function saveInvoice($saleID,$total,$invoiceDescription,$invoiceDate,$taxNumber)
     {
 
-        $this->invoice    =   array_merge($this->invoice,[
+        $this->invoice      =  array_merge($this->invoice,[
             'item_type'     => 'invoice',
             'description'   => $invoiceDescription,
             'issue_date'    => $invoiceDate,
             'invoice_series'=> $this->marketplace,
             'category_id'   => config("pazaryeri-parasut.parasut_category_id"),
-            'payment_status'=>'paid',
+            'payment_status'=> 'paid',
         ]);
 
         /**
@@ -186,17 +206,226 @@ class ParasutAdapter
              */
             $this->parasut->make('sale')->paid(
                 $response['sales_invoice']['id'],
-                [   "amount"=>$total,
-                    "date"=>date('Y-m-d'),
-                    "account_id"=>Config('pazaryeri-parasut.parasut_account_id')]
+                [   "amount"    =>  $total,
+                    "date"      =>  date('Y-m-d'),
+                    "account_id"=>  Config('pazaryeri-parasut.parasut_account_id')]
             );
 
             $this->localStorage->set('order',"{$this->marketplace}_".$saleID,$response['sales_invoice']['id']);
             $this->localStorage->save();
 
+            $this->makeEInvoice("{$this->marketplace}_".$saleID, $response['sales_invoice']['id'], $taxNumber);
+
+
         }catch (\Exception $e)
         {
             echo $e->getMessage()."\n";
         }
+
+    }
+
+    private function makeEInvoice($saleID,$invoiceID,$taxNumber)
+    {
+        /** İstek yapmadan önce daha önce istek yapılmış mı kontrol ediliyor */
+        $eInvoiceStatus	=	$this->parasut->make('sale')->eDocumentStatus($invoiceID);
+
+        $this->localStorage->set('waiting_einvoice',$saleID,$invoiceID);
+        $this->localStorage->save();
+
+        if($eInvoiceStatus['status']!="done")
+        {
+
+            $eInvoiceTypeData	=	$this->parasut->make('sale')->eDocumentType($invoiceID);
+
+            if($eInvoiceTypeData['e_document_type'] == 'e_archive' )
+            {
+
+                $this->eArchiveRequest($invoiceID);
+
+            }
+            elseif($eInvoiceTypeData['e_document_type'] == 'e_invoice' )
+            {
+
+                $this->eInvoiceRequest($invoiceID,$taxNumber);
+            }
+        }
+        else
+        {
+            $this->localStorage->delete('waiting_einvoice',$invoiceID);
+            $this->localStorage->save();
+        }
+    }
+
+    private function eArchiveRequest($invoiceID)
+    {
+        $eArchiveResponse = $this->parasut->make('sale')->eArchive($invoiceID,
+            ["internet_sale"=>array_merge(
+                $this->eInvoiceDefaults,["internet_sale"=>['payment_date'=>strtotime("now")]]
+            )]);
+
+        if(isset($eArchiveResponse['success'])) {
+
+            if ($eArchiveResponse['success'] == 'OK') {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** E-fatura isteği yapar
+     * @param $saleToken
+     * @param $invoice
+     * @param $tax
+     */
+    private function eInvoiceRequest($invoiceID,$tax)
+    {
+        //Get customer inboxes
+        $eInvoiceInboxes =  $this->parasut->make('sale')->eInvoiceInboxes($tax);
+        if($eInvoiceInboxes['e_invoice_inboxes'] !== null)
+        {
+
+            $inboxes        =   $eInvoiceInboxes['e_invoice_inboxes'];
+            $inboxAddress	=   $inboxes[0]['e_invoice_address'];
+
+            try{
+
+                $eInvoiceResponse =  $this->parasut->make('sale')->eInvoice($invoiceID,
+                    array_merge(
+                        [
+                            'scenario'=>'commercial',
+                            'to'=>$inboxAddress
+                        ],
+                        $this->eInvoiceDefaults
+                    ));
+
+                if($eInvoiceResponse['success'] !== null)
+                {
+
+                    if($eInvoiceResponse['success'] == 'OK')
+                    {
+                        return true;
+                    }
+                }
+
+            }catch(Exception $e)
+            {
+                Log::error("Fatura isteği hatası (eInvoice) ({Fatura: $invoiceID}):".$e->getMessage());
+            }
+        }
+
+    }
+
+    /**
+     * S3'e aktarılmamış veya emaili gönderilmemiş e-faturaları s3'e aktarır ve emailini iletir
+     */
+    public function transferEInvoices()
+    {
+
+        //E faturası bekleyen faturalar
+        $eInvoiceRequestedInvoices = $this->localStorage->get('waiting_einvoice');
+
+        foreach ($eInvoiceRequestedInvoices as $orderID=>$invoice)
+        {
+
+            $eInvoiceStatus	=	$this->parasut->make('sale')->eDocumentStatus($invoice);
+
+            if($eInvoiceStatus['status']=="done")
+            {
+
+                $saleInvoice = $this->parasut->make('sale')->find($invoice);
+                $customer    = $saleInvoice['sales_invoice']['contact'];
+
+                $eInvoicePath   =   $this->replaceTr(date('Y-m-d')."/{$customer['name']}-{$invoice}.pdf");
+
+                $s3Transfer =   $this->s3Transfer($eInvoicePath, $eInvoiceStatus['pdf']['url']);
+
+                if($s3Transfer)
+                {
+
+                    list($marketplace,$orderNumber)  =   explode('_',$orderID);
+                    $marketplaceProvider =  $this->paymentPlatforms[$marketplace];
+
+                    $emailSent = $this->sendEInvoiceMail($customer['name'], $customer['email'],
+                                config('pazaryeri-parasut.aws.invoice_bucket_url').$eInvoicePath, $orderNumber,
+                                "$marketplaceProvider"." ".config('pazaryeri-parasut.marketplace.name'));
+
+                    /**
+                     * Email de başarıyla gönderildiyse fatura e-faturası bekleyenler arasından siliniyor.
+                     */
+                    if($emailSent)
+                    {
+                        $this->localStorage->delete('waiting_einvoice',$orderID);
+                    }
+                }
+
+            }
+        }
+    }
+
+    /**
+     * Verilen urldeki dosyayı verilen s3 sunucusunda verilen pathe kopyalar.
+     * @param $path
+     * @param $pdfUrl
+     * @return bool
+     */
+    private function s3Transfer($path,$pdfUrl)
+    {
+        $s3 = App::make('aws')->createClient('s3');
+
+        $s3->putObject(array(
+            'Bucket'     => config('pazaryeri-parasut.aws.invoice_bucket'),
+            'Key'        => $path,
+            'Body'       => file_get_contents($pdfUrl),
+            'options'    => ['scheme'     => 'http']
+        ));
+
+        return true;
+    }
+
+    /**
+     * Müşteriye faturasını email ile gönderir
+     * @param $customerName
+     * @param $customerEmail
+     * @param $eInvoiceUrl
+     * @param $orderID
+     * @param $marketplaceName
+     * @return bool
+     */
+    private function sendEInvoiceMail($customerName,$customerEmail,$eInvoiceUrl,$orderID,$marketplaceName)
+    {
+        $mailview   =   'pazaryeri-parasut::emails.einvoice';
+
+        Mail::send($mailview, ['customerName' => $customerName,'orderID'=>$orderID,
+            'marketplaceName'=> $marketplaceName], function ($m) use ($eInvoiceUrl,$marketplaceName,$customerEmail) {
+            $m->from(config('pazaryeri-parasut.mail.from_email'), config('pazaryeri-parasut.mail.from_name'));
+            $m->to($customerEmail);
+
+            $emails =   explode(",",config('pazaryeri-parasut.mail.cc_email'));
+
+            foreach ($emails as $cc)
+            {
+                $m->cc($cc);
+            }
+
+            $m->subject("{$marketplaceName} alışverişinizin e-faturası hazır!");
+            $m->attach($eInvoiceUrl);
+        });
+
+        return true;
+    }
+
+    /**
+     * Metindeki türkçeye has karekterleri ingilizce alternatifleriyle değiştirir.
+     * @param $text
+     * @return string
+     */
+    private function replaceTr($text) {
+        $text = trim($text);
+        $search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü',' ');
+        $replace = array('c','c','g','g','i','i','o','o','s','s','u','u','_');
+        $new_text = str_replace($search,$replace,$text);
+        return $new_text;
     }
 }

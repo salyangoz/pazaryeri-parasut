@@ -1016,14 +1016,14 @@ class Gittigidiyor
 	 * @return object Sales info
 	 */
 	public function getPagedSales(
-							 $withData = true,
-							 $byStatus = 'S',
-							 $byUser = '',
-							 $orderBy = 'C',
-							 $orderType = 'A',
+							 $withData,
+							 $byStatus,
+							 $byUser,
+                             $orderBy,
+                             $orderType,
                              $pageNumber = 1,
-							 $pageSize = 20){
-		//$withData = $this->booleanConvert($withData);
+                                 $pageSize = 100){
+		$withData = $this->booleanConvert($withData);
 		return $this->clientConnect('individual','Sale','getPagedSales',get_defined_vars());
 	}
 	
