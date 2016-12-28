@@ -15,7 +15,8 @@
     "type": "Php",
     "require": {
         "mayoz/parasut": "^1.0",
-        "guzzlehttp/guzzle": "^6.2"
+        "guzzlehttp/guzzle": "^6.2",
+        "aws/aws-sdk-php-laravel": "^3.1"
     },
     "license": "MIT",
     "authors": [

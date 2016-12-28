@@ -21,14 +21,14 @@ class Client implements PazaryeriParasut
     public function transfer()
     {
 
-/*        $n11 = new Marketplace\N11($this->config);
-        $n11->transfer();*/
+        $n11 = new Marketplace\N11($this->config);
+        $n11->transfer();
 
         $gittigidiyor   =   new Marketplace\Gittigidiyor($this->config);
         $gittigidiyor->transfer();
 
-/*        $hepsiburada    =   new Marketplace\Hepsiburada($this->config);
-        $hepsiburada->transfer();*/
+        $hepsiburada    =   new Marketplace\Hepsiburada($this->config);
+        $hepsiburada->transfer();
 
     }
 
