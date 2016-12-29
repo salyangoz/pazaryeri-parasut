@@ -34,11 +34,15 @@ class Gittigidiyor extends Marketplace
      */
     protected function processSale($sale)
     {
+		
+		if($this->localStorage->get('order.GG_'.$sale->saleCode)){
+			return;
+		}
 
         $format = "d/m/Y H:i:s";
         $date = \DateTime::createFromFormat($format, $sale->lastActionDate);
 
-        if(!($date->getTimestamp() >= strtotime("-5 day")))
+        if(!($date->getTimestamp() >= strtotime("-7 day")))
         {
             return;
         }

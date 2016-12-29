@@ -212,7 +212,7 @@ class ParasutAdapter
             );
 
             $this->localStorage->set('order',"{$this->marketplace}_".$saleID,$response['sales_invoice']['id']);
-            $this->localStorage->save();
+			$this->localStorage->save();
 
             $this->makeEInvoice("{$this->marketplace}_".$saleID, $response['sales_invoice']['id'], $taxNumber);
 
@@ -226,16 +226,17 @@ class ParasutAdapter
 
     private function makeEInvoice($saleID,$invoiceID,$taxNumber)
     {
+		$this->localStorage->set('waiting_einvoice',$saleID,$invoiceID);
+		$this->localStorage->save();
+			
         /** İstek yapmadan önce daha önce istek yapılmış mı kontrol ediliyor */
-        $eInvoiceStatus	=	$this->parasut->make('sale')->eDocumentStatus($invoiceID);
+        $eInvoiceStatus	=	$this->parasut->make('sale')->getEInvoiceStatus($invoiceID);
 
-        $this->localStorage->set('waiting_einvoice',$saleID,$invoiceID);
-        $this->localStorage->save();
 
         if($eInvoiceStatus['status']!="done")
         {
 
-            $eInvoiceTypeData	=	$this->parasut->make('sale')->eDocumentType($invoiceID);
+            $eInvoiceTypeData	=	$this->parasut->make('sale')->getEInvoiceType($invoiceID);
 
             if($eInvoiceTypeData['e_document_type'] == 'e_archive' )
             {
@@ -251,14 +252,14 @@ class ParasutAdapter
         }
         else
         {
-            $this->localStorage->delete('waiting_einvoice',$invoiceID);
+            $this->localStorage->delete('waiting_einvoice',$saleID);
             $this->localStorage->save();
         }
     }
 
     private function eArchiveRequest($invoiceID)
     {
-        $eArchiveResponse = $this->parasut->make('sale')->eArchive($invoiceID,
+        $eArchiveResponse = $this->parasut->make('sale')->createEArchive($invoiceID,
             ["internet_sale"=>array_merge(
                 $this->eInvoiceDefaults,["internet_sale"=>['payment_date'=>strtotime("now")]]
             )]);
@@ -282,7 +283,7 @@ class ParasutAdapter
     private function eInvoiceRequest($invoiceID,$tax)
     {
         //Get customer inboxes
-        $eInvoiceInboxes =  $this->parasut->make('sale')->eInvoiceInboxes($tax);
+        $eInvoiceInboxes =  $this->parasut->make('sale')->getEInvoiceInboxes($tax);
         if($eInvoiceInboxes['e_invoice_inboxes'] !== null)
         {
 
@@ -291,7 +292,7 @@ class ParasutAdapter
 
             try{
 
-                $eInvoiceResponse =  $this->parasut->make('sale')->eInvoice($invoiceID,
+                $eInvoiceResponse =  $this->parasut->make('sale')->createEInvoice($invoiceID,
                     array_merge(
                         [
                             'scenario'=>'commercial',
@@ -324,16 +325,21 @@ class ParasutAdapter
     {
 
         //E faturası bekleyen faturalar
-        $eInvoiceRequestedInvoices = $this->localStorage->get('waiting_einvoice');
+        $eInvoiceRequestedInvoices = (array)$this->localStorage->get('waiting_einvoice');
 
         foreach ($eInvoiceRequestedInvoices as $orderID=>$invoice)
         {
 
-            $eInvoiceStatus	=	$this->parasut->make('sale')->eDocumentStatus($invoice);
+            $eInvoiceStatus	=	$this->parasut->make('sale')->getEInvoiceStatus($invoice);
+            $saleInvoice 	=	$this->parasut->make('sale')->find($invoice);
 
-            if($eInvoiceStatus['status']=="done")
+            if(isset($saleInvoice['error']))
             {
+                continue;
+            }
 
+            if($eInvoiceStatus['status'] == "done" && $saleInvoice['sales_invoice']['item_type'] == 'invoice')
+            {
                 $saleInvoice = $this->parasut->make('sale')->find($invoice);
                 $customer    = $saleInvoice['sales_invoice']['contact'];
 
@@ -357,6 +363,7 @@ class ParasutAdapter
                     if($emailSent)
                     {
                         $this->localStorage->delete('waiting_einvoice',$orderID);
+			$this->localStorage->save();
                     }
                 }
 

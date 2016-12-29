@@ -30,7 +30,7 @@ class Hepsiburada
      */
 	public function orders()
 	{
-		$res = $this->guzzleClient->request('GET', $this->orderEndpoint."packages/merchantid/{$this->merchantID}?timespan=120",
+		$res = $this->guzzleClient->request('GET', $this->orderEndpoint."packages/merchantid/{$this->merchantID}?timespan=168",
 			$this->authentication
 		);
 		
