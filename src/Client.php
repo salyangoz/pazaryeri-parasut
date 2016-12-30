@@ -2,6 +2,7 @@
 
 namespace salyangoz\pazaryeriparasut;
 use Carbon\Carbon;
+use salyangoz\pazaryeriparasut\Marketplace\Hepsiburada;
 use salyangoz\pazaryeriparasut\Services\EInvoice;
 
 class Client implements PazaryeriParasut
@@ -41,6 +42,9 @@ class Client implements PazaryeriParasut
 
         $n11    =   new Marketplace\N11($this->config);
         $n11->pull();
+
+        $hepsiburada    =   new Hepsiburada($this->config);
+        $hepsiburada->pull();
     }
 
     public function push()

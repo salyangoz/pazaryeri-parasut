@@ -83,6 +83,7 @@ class Gittigidiyor extends Marketplace
             {
                 $taxOffice  =    $sale->buyerInfo->district;
             }
+
             if(isset($sale->invoiceInfo->taxOffice))
             {
                 if($sale->invoiceInfo->taxOffice)
@@ -103,7 +104,7 @@ class Gittigidiyor extends Marketplace
             $fullname   =   $sale->buyerInfo->name." ".$sale->buyerInfo->surname;
         }
 
-        $pull   =   new pazaryeriparasut\Pull($this->marketplace);
+        $pull   =   new pazaryeriparasut\Services\Pull($this->marketplace);
 
         $pull->createCustomer($contactType,$sale->buyerInfo->username,
                                 $fullname,
@@ -114,9 +115,7 @@ class Gittigidiyor extends Marketplace
                                 $district,
                                 $phone,
                                 $sale->buyerInfo->email,
-                                $tc
-        )
-
+                                $tc)
             ->createOrder($sale->saleCode,$sale->price,"GG ".$sale->productTitle, Carbon::now())
             ->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price / $sale->amount);
     }
@@ -136,8 +135,6 @@ class Gittigidiyor extends Marketplace
             {
                 $saleList = $sales->sales->sale;
             }
-
-            Log::info('Order Count Per Page:'.count($sales->sales->sale));
 
             foreach ($saleList as $sale)
             {

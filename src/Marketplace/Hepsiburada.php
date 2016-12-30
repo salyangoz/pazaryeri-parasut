@@ -3,11 +3,13 @@
 namespace salyangoz\pazaryeriparasut\Marketplace;
 
 use salyangoz\pazaryeriparasut;
+use salyangoz\pazaryeriparasut\Models\Order;
+use Carbon\Carbon;
 
 class Hepsiburada extends Marketplace
 {
 
-	private $hepsiburada;
+	private $marketplace = "Hepsiburada";
 	
 	public function __construct(array $config)
 	{
@@ -23,7 +25,7 @@ class Hepsiburada extends Marketplace
 		$this->hepsiburada	    =	new pazaryeriparasut\Library\Hepsiburada($hbConfig);
 	}
 	
-	public function transfer()
+	public function pull()
 	{
 		$orders = $this->sales();
 
@@ -40,50 +42,74 @@ class Hepsiburada extends Marketplace
 
     protected function processSale($sale)
     {
-        $this->parasutAdapter   =   new pazaryeriparasut\ParasutAdapter($this->config,"HB");
+
+        /** Ürün Unpacket durumundaysa atlıyor */
+        if($sale->status == "Unpacked")
+        {
+            return;
+        }
 
         /**
          * Sipariş daha önce işlendiyse atlıyor
          */
-        if($this->localStorage->get('order.HB_'.$sale->id))
+        $orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$sale->packageNumber)->count();
+        if($orderCount>0)
+        {
             return;
-
-        $contactType    =   "person";
-        if($sale->taxOffice)
-            $contactType    =   "company";
-
-        if($sale->taxNumber)
-            $taxNumber  =   $sale->taxNumber;
-        else{
-            $taxNumber  =   $sale->identityNo;
-            if(!$taxNumber) $taxNumber  =   11111111111;
         }
 
-        $this->parasutAdapter->setContact($contactType,
-            $sale->customerId,
-            $sale->companyName,
-            $sale->billingAddress." ".$sale->billingDistrict." / ".$sale->billingCity,
-            $taxNumber,
-            $sale->taxOffice,
-            $sale->billingCity,
-            $sale->billingDistrict,
-            $sale->phoneNumber,
-            $sale->email);
+        $contactType        =   "Customer";
+        if($sale->taxOffice)
+        {
+            $contactType    =   "Company";
+        }
 
-        $total = 0;
-        $description    =   "";
+        $tc = self::fillTc($sale->identityNo);
+
+        $taxNumber  =   $sale->taxNumber;
+
+        $address    =   $sale->billingAddress." ".$sale->billingDistrict." / ".$sale->billingCity;
+
+        list($date) = explode(".",$sale->items[0]->orderDate);
+
+        $orderDate  = Carbon::createFromFormat("Y-m-d\\TH:i:s",$date);;
+
+        $pull   =   new pazaryeriparasut\Services\Pull($this->marketplace);
+        $pull->createCustomer($contactType,
+            $sale->customerId,$sale->companyName, $address,$taxNumber,
+            $sale->taxOffice, $sale->billingCity, $sale->billingDistrict, $sale->phoneNumber,$sale->email,$tc);
+
+        $pull->createOrder($sale->packageNumber, $this->getTotal($sale->items), "HB - ".$this->getDescription($sale->items),$orderDate);
+
 
         foreach ($sale->items as $product)
         {
-            $this->parasutAdapter->addProduct($product->productName,$product->lineItemId,
-                $product->quantity,$product->price->amount);
 
-            $total+=($product->price->amount*$product->quantity);
+            $pull->addProduct($product->productName,$product->lineItemId,$product->quantity,$product->price->amount);
 
-            $description    =   $product->productName." ";
         }
 
-        $this->parasutAdapter->saveInvoice($sale->id,$total,$description,date('Y-m-d'),$taxNumber);
+    }
 
+    private function getDescription($items)
+    {
+        $description    =   "";
+        foreach($items as $item)
+        {
+            $description.=$item->productName." ";
+        }
+
+        return $description;
+    }
+
+    private function getTotal($items)
+    {
+        $total = 0;
+        foreach ($items as $item)
+        {
+            $total+=($item->totalPrice->amount);
+        }
+
+        return $total;
     }
 }

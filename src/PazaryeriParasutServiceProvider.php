@@ -5,6 +5,7 @@ namespace salyangoz\pazaryeriparasut;
 use salyangoz\pazaryeriparasut\Commands\EinvoiceTransfer;
 use salyangoz\pazaryeriparasut\Commands\Transfer;
 use salyangoz\pazaryeriparasut\Commands\TransferEInvoice;
+use salyangoz\pazaryeriparasut\Commands\Import;
 use Illuminate\Support\ServiceProvider;
 use salyangoz\pazaryeriparasut\Commands\Pull;
 use salyangoz\pazaryeriparasut\Commands\Push;
@@ -25,6 +26,7 @@ class PazaryeriParasutServiceProvider extends ServiceProvider
                 Pull::class,
                 Push::class,
                 Einvoice::class,
+                Import::class
             ]);
         }
 
