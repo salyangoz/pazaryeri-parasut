@@ -4,6 +4,8 @@ namespace salyangoz\pazaryeriparasut;
 use Carbon\Carbon;
 use salyangoz\pazaryeriparasut\Marketplace\Hepsiburada;
 use salyangoz\pazaryeriparasut\Services\EInvoice;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class Client implements PazaryeriParasut
 {
@@ -35,16 +37,37 @@ class Client implements PazaryeriParasut
 
     public function pull()
     {
-        //Todo: Tüm clienlar açılacak
 
-        $gittigidiyorMarket = new Marketplace\Gittigidiyor($this->config);
-        $gittigidiyorMarket->pull();
+        try
+		{
+			$gittigidiyorMarket = new Marketplace\Gittigidiyor($this->config);
+			$gittigidiyorMarket->pull();
+		}
+		catch(Exception $e)
+		{
+			Log::error($e->getMessage());
+		}
+		
+		try
+		{
+			$n11    =   new Marketplace\N11($this->config);
+			$n11->pull();
+		}
+		catch(Exception $e)
+		{
+			Log::error($e->getMessage());
+		}
 
-        $n11    =   new Marketplace\N11($this->config);
-        $n11->pull();
+		try
+        {
+            $hepsiburada    =   new Hepsiburada($this->config);
+            $hepsiburada->pull();
+        }
+        catch (Exception $e)
+        {
+            Log::error($e->getMessage());
+        }
 
-        $hepsiburada    =   new Hepsiburada($this->config);
-        $hepsiburada->pull();
     }
 
     public function push()
