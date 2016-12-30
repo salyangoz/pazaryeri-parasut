@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Support\Facades\Log;
 use salyangoz\pazaryeriparasut\Models\Order;
 use Carbon\Carbon;
+use salyangoz\pazaryeriparasut\Services\Pull;
 
 class N11 extends Marketplace
 {
@@ -86,7 +87,7 @@ class N11 extends Marketplace
                         if($orderCount == 0)
                         {
 
-                            usleep(1000000);
+                            sleep(1);
                             $orderDetail  = $this->n11->OrderDetail([
                                 "id" => $order2->id
                             ]);
@@ -95,7 +96,7 @@ class N11 extends Marketplace
                         }
                     }
 
-                    usleep(7000000);
+                    sleep(7);
 
                 }while($currentPage<$totalPage-1);
 
@@ -133,7 +134,7 @@ class N11 extends Marketplace
         $taxOffice      =   $sale->buyer->taxOffice;
         $tc             =   self::fillTc($sale->buyer->tcId);
 
-        $pull   =   new pazaryeriparasut\Pull($this->marketplace);
+        $pull   =   new Pull($this->marketplace);
         $pull->createCustomer($contactType, $sale->buyer->id, $sale->billingAddress->fullName,
                                 $sale->billingAddress->address,$taxNumber,$taxOffice,$sale->billingAddress->city,
                                 $sale->billingAddress->district,$sale->billingAddress->gsm,$sale->buyer->email,$tc);

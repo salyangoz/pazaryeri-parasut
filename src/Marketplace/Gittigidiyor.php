@@ -7,6 +7,7 @@ use salyangoz\pazaryeriparasut;
 use salyangoz\pazaryeriparasut\Models\Order;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use salyangoz\pazaryeriparasut\Services\Pull;
 
 class Gittigidiyor extends Marketplace
 {
@@ -103,7 +104,7 @@ class Gittigidiyor extends Marketplace
             $fullname   =   $sale->buyerInfo->name." ".$sale->buyerInfo->surname;
         }
 
-        $pull   =   new pazaryeriparasut\Pull($this->marketplace);
+        $pull   =   new Pull($this->marketplace);
 
         $pull->createCustomer($contactType,$sale->buyerInfo->username,
                                 $fullname,
