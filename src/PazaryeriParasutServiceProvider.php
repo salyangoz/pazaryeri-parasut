@@ -26,7 +26,6 @@ class PazaryeriParasutServiceProvider extends ServiceProvider
                 Pull::class,
                 Push::class,
                 Einvoice::class,
-                Import::class
             ]);
         }
 
