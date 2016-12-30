@@ -6,21 +6,21 @@ use salyangoz\pazaryeriparasut\PazaryeriParasut;
 
 use Illuminate\Console\Command;
 
-class Transfer extends Command
+class Push extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'pazaryeriparasut:transfer';
+    protected $signature = 'pazaryeriparasut:push';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Transfer orders to parasut from n11,hepsiburada,gittigidiyor';
+    protected $description = 'Save orders to parasut from your heart';
 
     /**
      * Create a new command instance.
@@ -40,7 +40,7 @@ class Transfer extends Command
     public function handle()
     {
 
-        App(PazaryeriParasut::class)->transfer();
+        App(PazaryeriParasut::class)->push();
 
     }
 }

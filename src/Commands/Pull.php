@@ -6,21 +6,21 @@ use salyangoz\pazaryeriparasut\PazaryeriParasut;
 
 use Illuminate\Console\Command;
 
-class TransferEInvoice extends Command
+class Pull extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'pazaryeriparasut:einvoicetransfer';
+    protected $signature = 'pazaryeriparasut:pull';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Efaturaları belirlenen s3 amazon sunucusuna aktarır';
+    protected $description = 'Save orders to db from n11,hepsiburada,gittigidiyor';
 
     /**
      * Create a new command instance.
@@ -40,7 +40,7 @@ class TransferEInvoice extends Command
     public function handle()
     {
 
-        App(PazaryeriParasut::class)->transferEInvoices();
+        App(PazaryeriParasut::class)->pull();
 
     }
 }

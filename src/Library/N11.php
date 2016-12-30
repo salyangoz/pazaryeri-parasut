@@ -52,9 +52,10 @@ Class N11 {
         return self::$_sclient->DeleteProductBySellerCode(self::$_parameters);
     }
     
-    public function DetailedOrderList(array $searchData = Array()) {
+    public function DetailedOrderList(array $searchData = Array(),array $pagingData = Array()) {
         $this->setUrl('OrderService.wsdl');
         self::$_parameters['searchData'] = $searchData;
+        self::$_parameters['pagingData'] = $pagingData;
         return self::$_sclient->DetailedOrderList(self::$_parameters);
     }
     
@@ -74,7 +75,7 @@ Class N11 {
     {
         if($response->result->status == "failure")
         {
-            throw new \Exception($response->result->errorMessage);
+            throw new \Exception($response->result->errorMessage . " " . $response->result->errorCode);
             exit();
         }
 

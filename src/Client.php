@@ -1,6 +1,8 @@
 <?php
 
 namespace salyangoz\pazaryeriparasut;
+use Carbon\Carbon;
+use salyangoz\pazaryeriparasut\Services\EInvoice;
 
 class Client implements PazaryeriParasut
 {
@@ -20,22 +22,37 @@ class Client implements PazaryeriParasut
 
     public function transfer()
     {
-
-        $n11 = new Marketplace\N11($this->config);
-        $n11->transfer();
-
-        $gittigidiyor   =   new Marketplace\Gittigidiyor($this->config);
-        $gittigidiyor->transfer();
-
-        $hepsiburada    =   new Marketplace\Hepsiburada($this->config);
-        $hepsiburada->transfer();
-
+        $einvoice   =   new EInvoice($this->config);
+        $einvoice->transfer();
     }
 
     public function transferEInvoices()
     {
         $parasutAdapter =   new ParasutAdapter($this->config,"GG");
         $parasutAdapter->transferEInvoices();
+    }
+
+    public function pull()
+    {
+        //Todo: Tüm clienlar açılacak
+
+        $gittigidiyorMarket = new Marketplace\Gittigidiyor($this->config);
+        $gittigidiyorMarket->pull();
+
+        $n11    =   new Marketplace\N11($this->config);
+        $n11->pull();
+    }
+
+    public function push()
+    {
+        $push = new Push($this->config);
+        $push->start();
+    }
+
+    public function einvoiceRequest()
+    {
+        $einvoice   =   new EInvoice($this->config);
+        $einvoice->request();
     }
 
 }

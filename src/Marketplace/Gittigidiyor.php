@@ -2,17 +2,20 @@
 
 namespace salyangoz\pazaryeriparasut\Marketplace;
 
+use Exception;
 use salyangoz\pazaryeriparasut;
+use salyangoz\pazaryeriparasut\Models\Order;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class Gittigidiyor extends Marketplace
 {
 
     private $gittigidiyor;
+    private $marketplace =   "Gittigidiyor";
 
     public function __construct(array $config)
     {
-        parent::__construct($config);
-
         $gittigidiyorConfig =   [
             'apiKey'            =>  array_get($config, 'gittigidiyor_api_key'),
             'secretKey'         =>  array_get($config, 'gittigidiyor_secret_key'),
@@ -24,7 +27,6 @@ class Gittigidiyor extends Marketplace
             'developer_base_url'=>  array_get($config, 'gittigidiyor_developer_base_url'),
             'product_base_url'  =>  array_get($config, 'gittigidiyor_product_base_url')
         ];
-
         $this->gittigidiyor =   new pazaryeriparasut\Library\Gittigidiyor($gittigidiyorConfig);
     }
 
@@ -34,38 +36,45 @@ class Gittigidiyor extends Marketplace
      */
     protected function processSale($sale)
     {
-		
-		if($this->localStorage->get('order.GG_'.$sale->saleCode)){
-			return;
-		}
 
-        $format = "d/m/Y H:i:s";
-        $date = \DateTime::createFromFormat($format, $sale->lastActionDate);
+		$orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$sale->saleCode)->count();
 
-        if(!($date->getTimestamp() >= strtotime("-7 day")))
+        if($orderCount>0)
         {
             return;
         }
+        /**
+        $format = "d/m/Y H:i:s";
+        $date = \DateTime::createFromFormat($format, $sale->lastActionDate);
 
+        if(!($date->getTimestamp() >= strtotime("12/01/2016 00:01")))
+        {
+            return;
+        }
+*       */
         /** Sipari tutarı 0 tl ise atlıyor */
         if($sale->price == 0)
             return;
 
-        $parasutAdapter =   new pazaryeriparasut\ParasutAdapter($this->config, "GG");
+        $contactType    =   "Customer";
 
-        $contactType    =   "person";
+        $tax        =   null;
+        $tc         =   null;
 
         if(isset($sale->invoiceInfo))
         {
             $address    =   $sale->invoiceInfo->address;
+
             if(isset($sale->invoiceInfo->taxNumber))
-                $tax        =   $sale->invoiceInfo->taxNumber ? $sale->invoiceInfo->taxNumber :  $sale->invoiceInfo->tcCertificate;
+                $tax        =   $sale->invoiceInfo->taxNumber;
             else
             {
-                $tax        =   $sale->invoiceInfo->tcCertificate;
+                if(isset($sale->invoiceInfo->tcCertificat))
+                {
+                    $tc        =   self::fillTc($sale->invoiceInfo->tcCertificate);
+                }
             }
-            $district   =   $sale->invoiceInfo->district;
-            $phone      =   $sale->invoiceInfo->phoneNumber;
+
             if(isset($sale->invoiceInfo->taxOffice))
             {
                 $taxOffice  =   $sale->invoiceInfo->taxOffice ? $sale->invoiceInfo->taxOffice : $sale->buyerInfo->district;
@@ -77,65 +86,78 @@ class Gittigidiyor extends Marketplace
             if(isset($sale->invoiceInfo->taxOffice))
             {
                 if($sale->invoiceInfo->taxOffice)
-                    $contactType    =   "company";
+                    $contactType    =   "Company";
             }
 
             $fullname   =   $sale->invoiceInfo->companyTitle ? $sale->invoiceInfo->companyTitle : $sale->invoiceInfo->fullname;
+            $district   =   $sale->invoiceInfo->district;
+            $phone      =   $sale->invoiceInfo->phoneNumber;
         }
         else
         {
             $address    =   $sale->buyerInfo->address;
-            $tax        =   11111111111;
+            $tc         =   self::fillTc("");
             $district   =   $sale->buyerInfo->district;
             $phone      =   $sale->buyerInfo->phone;
             $taxOffice  =   "";
             $fullname   =   $sale->buyerInfo->name." ".$sale->buyerInfo->surname;
         }
 
-        $parasutAdapter->setContact($contactType,$sale->buyerInfo->username,
-            $fullname,
-            $address,
-            $tax,
-            $taxOffice,
-            $sale->buyerInfo->city,
-            $district,
-            $phone,
-            $sale->buyerInfo->email
-            );
+        $pull   =   new pazaryeriparasut\Pull($this->marketplace);
 
+        $pull->createCustomer($contactType,$sale->buyerInfo->username,
+                                $fullname,
+                                $address,
+                                $tax,
+                                $taxOffice,
+                                $sale->buyerInfo->city,
+                                $district,
+                                $phone,
+                                $sale->buyerInfo->email,
+                                $tc
+        )
 
-        $parasutAdapter->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price / $sale->amount);
-
-        $parasutAdapter->saveInvoice($sale->saleCode,$sale->price,$sale->productTitle, date('Y-m-d'),$tax);
+            ->createOrder($sale->saleCode,$sale->price,"GG ".$sale->productTitle, Carbon::now())
+            ->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price / $sale->amount);
     }
 
     protected function sales($page=1)
     {
+        $sales = $this->gittigidiyor->getPagedSales(true, 'S', '', 'A', 'D', $page);
 
-        $sales = $this->gittigidiyor->getPagedSales(true, 'O', '', 'A', 'D', $page);
-
-		if(!is_array($sales->sales->sale))
-		{
-			$saleList = $sales->sales;
-		}
-		else
-		{
-			$saleList = $sales->sales->sale;
-		}
-
-        foreach ($saleList as $sale)
+        try
         {
-            $this->processSale($sale);
-        }
 
-        $page++;
+            if(!is_array($sales->sales->sale))
+            {
+                $saleList = $sales->sales;
+            }
+            else
+            {
+                $saleList = $sales->sales->sale;
+            }
+
+            Log::info('Order Count Per Page:'.count($sales->sales->sale));
+
+            foreach ($saleList as $sale)
+            {
+                $this->processSale($sale);
+            }
+
+            $page++;
+
+        }
+        catch (Exception $e)
+        {
+            Log::info($e->getMessage());
+        }
 
         if($sales->nextPageAvailable)
             return $this->sales($page);
     }
 
-    public function transfer()
+    public function pull()
     {
-        $this->sales();
+        return $this->sales();
     }
 }

@@ -2,10 +2,13 @@
 
 namespace salyangoz\pazaryeriparasut;
 
-use salyangoz\pazaryeriparasut\Commands\MigrateLocalStorageToDB;
+use salyangoz\pazaryeriparasut\Commands\EinvoiceTransfer;
 use salyangoz\pazaryeriparasut\Commands\Transfer;
 use salyangoz\pazaryeriparasut\Commands\TransferEInvoice;
 use Illuminate\Support\ServiceProvider;
+use salyangoz\pazaryeriparasut\Commands\Pull;
+use salyangoz\pazaryeriparasut\Commands\Push;
+use salyangoz\pazaryeriparasut\Commands\Einvoice;
 
 class PazaryeriParasutServiceProvider extends ServiceProvider
 {
@@ -17,15 +20,19 @@ class PazaryeriParasutServiceProvider extends ServiceProvider
     public function boot()
     {
         if ($this->app->runningInConsole()) {
+
             $this->commands([
-                Transfer::class,
-                TransferEInvoice::class
+                Pull::class,
+                Push::class,
+                Einvoice::class,
             ]);
         }
 
         $this->publishes([
             __DIR__ . '/Config/pazaryeri-parasut.php' => config_path('pazaryeri-parasut.php'),
         ]);
+
+        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
     }
 
     /**
@@ -43,13 +50,13 @@ class PazaryeriParasutServiceProvider extends ServiceProvider
             __DIR__ . '/Config/pazaryeri-parasut.php', 'pazaryeri-parasut'
         );
 
-        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
-
         $this->loadViewsFrom(__DIR__ . '/Resources/Views', 'pazaryeri-parasut');
 
         $this->publishes([
             __DIR__ . '//Resources/Views' => resource_path('views/salyangoz/pazaryeri-parasut'),
         ]);
+
+        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
     }
 
     /**

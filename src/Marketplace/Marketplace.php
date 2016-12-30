@@ -37,5 +37,15 @@ abstract class MarketPlace
 
     abstract protected function processSale($sale);
 
-    abstract public function transfer();
+    abstract protected function pull();
+
+    public static function fillTc($tc)
+    {
+        if(strlen($tc)<10)
+        {
+            return 11111111111;
+        }
+
+        return $tc;
+    }
 }

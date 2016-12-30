@@ -11,12 +11,11 @@ class ParasutAdapter
     public $parasut;
     protected $localStorage;
     protected $invoice  =   [];
-    protected $marketplace;
     protected $eInvoiceDefaults;
     protected $paymentPlatforms;
 
 
-    public function __construct(array $config, $marketplace)
+    public function __construct(array $config)
     {
         // create a new client instance
         $this->parasut = new ParasutClient([
@@ -33,8 +32,6 @@ class ParasutAdapter
 
         $this->localStorage =   new LocalStorage();
 
-        $this->marketplace = $marketplace;
-
         $paymentPlatforms   =   [
             "HB"    =>  "Hepsiburada",
             "GG"    =>  "Gittigidiyor",
@@ -45,8 +42,7 @@ class ParasutAdapter
 
         $this->eInvoiceDefaults =   [
             'internet_sale'         =>[
-                "payment_type"      =>config("pazaryeri-parasut.einvoice_payment_type"),
-                "payment_platform"  => $paymentPlatforms[$this->marketplace]
+                "payment_type"      => config("pazaryeri-parasut.einvoice_payment_type"),
             ],
             'vat_withholding_code'  =>config("pazaryeri-parasut.einvoice_vat_withholding_code")
         ];
@@ -371,64 +367,13 @@ class ParasutAdapter
         }
     }
 
-    /**
-     * Verilen urldeki dosyayı verilen s3 sunucusunda verilen pathe kopyalar.
-     * @param $path
-     * @param $pdfUrl
-     * @return bool
-     */
-    private function s3Transfer($path,$pdfUrl)
-    {
-        $s3 = App::make('aws')->createClient('s3');
-
-        $s3->putObject(array(
-            'Bucket'     => config('pazaryeri-parasut.aws.invoice_bucket'),
-            'Key'        => $path,
-            'Body'       => file_get_contents($pdfUrl),
-            'options'    => ['scheme'     => 'http']
-        ));
-
-        return true;
-    }
-
-    /**
-     * Müşteriye faturasını email ile gönderir
-     * @param $customerName
-     * @param $customerEmail
-     * @param $eInvoiceUrl
-     * @param $orderID
-     * @param $marketplaceName
-     * @return bool
-     */
-    private function sendEInvoiceMail($customerName,$customerEmail,$eInvoiceUrl,$orderID,$marketplaceName)
-    {
-        $mailview   =   'pazaryeri-parasut::emails.einvoice';
-
-        Mail::send($mailview, ['customerName' => $customerName,'orderID'=>$orderID,
-            'marketplaceName'=> $marketplaceName], function ($m) use ($eInvoiceUrl,$marketplaceName,$customerEmail) {
-            $m->from(config('pazaryeri-parasut.mail.from_email'), config('pazaryeri-parasut.mail.from_name'));
-            $m->to($customerEmail);
-
-            $emails =   explode(",",config('pazaryeri-parasut.mail.cc_email'));
-
-            foreach ($emails as $cc)
-            {
-                $m->cc($cc);
-            }
-
-            $m->subject("{$marketplaceName} alışverişinizin e-faturası hazır!");
-            $m->attach($eInvoiceUrl);
-        });
-
-        return true;
-    }
 
     /**
      * Metindeki türkçeye has karekterleri ingilizce alternatifleriyle değiştirir.
      * @param $text
      * @return string
      */
-    private function replaceTr($text) {
+    public static function replaceTr($text) {
         $text = trim($text);
         $search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü',' ');
         $replace = array('c','c','g','g','i','i','o','o','s','s','u','u','_');

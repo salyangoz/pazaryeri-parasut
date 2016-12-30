@@ -3,10 +3,15 @@
 namespace salyangoz\pazaryeriparasut\Marketplace;
 
 use salyangoz\pazaryeriparasut;
+use Exception;
+use Illuminate\Support\Facades\Log;
+use salyangoz\pazaryeriparasut\Models\Order;
+use Carbon\Carbon;
 
 class N11 extends Marketplace
 {
     private $n11;
+    private $marketplace = "N11";
 
     public function __construct(array $config)
     {
@@ -27,80 +32,94 @@ class N11 extends Marketplace
      */
     protected function sales()
     {
-        $sales = [];
 
-        try{
-            $orderList  = $this->n11->DetailedOrderList(
-                [
-                    "productId"=>'',
-                    "status"=> 'Completed',
-                    "buyerName"=> '',
-                    "orderNumber"=> '',
-                    "productSellerCode" =>'',
-                    "recipient"=> '',
-                    "period"=>[
-                        "startDate"=> date_create('-7 day')->format('d/m/Y'),
-                        "endDate"=> date_create('now')->format('d/m/Y')
-                    ]
-                ]
-            );
+            $sales = [];
 
-            $this->n11->checkResponse($orderList);
+            $allOrders		=	array();
+            $currentPage	=	-1;
 
-            if(!isset($orderList->orderList))
-                return [];
-			
-			if(!isset($orderList->orderList->order))
-				return [];
-
-            if(is_object($orderList->orderList->order))
+            try
             {
-                $orders[]  =   $orderList->orderList->order;
+
+                do{
+
+                    $currentPage++;
+
+                    $orderList  = $this->n11->DetailedOrderList(
+                        [
+                            "productId"=>'',
+                            "status"=> '',
+                            "buyerName"=> '',
+                            "orderNumber"=> '',
+                            "productSellerCode" =>'',
+                            "recipient"=> '',
+                            "period"=>[
+                                "startDate"=> date_create('-30 day')->format('d/m/Y'),
+                                "endDate"=> date_create('now')->format('d/m/Y')
+                            ]
+                        ],
+                        [
+                            "currentPage"=>$currentPage
+                        ]
+                    );
+
+                    $this->n11->checkResponse($orderList);
+
+                    if($orderList->pagingData->totalCount == 0)
+                    {
+                        continue;
+                    }
+
+                    $totalPage	=	$orderList->pagingData->pageCount;
+
+                    Log::info("Page: {$currentPage}/{$totalPage}");
+
+                    if(!isset($orderList->orderList->order))
+                    {
+                        continue;
+                    }
+
+                    foreach($orderList->orderList->order as $order2)
+                    {
+                        $orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$order2->orderNumber)->count();
+
+                        if($orderCount == 0)
+                        {
+
+                            usleep(1000000);
+                            $orderDetail  = $this->n11->OrderDetail([
+                                "id" => $order2->id
+                            ]);
+
+                            $this->processSale($orderDetail->orderDetail);
+                        }
+                    }
+
+                    usleep(7000000);
+
+                }while($currentPage<$totalPage-1);
+
+                return $sales;
+
+
             }
-            else
+            catch (Exception $e)
             {
-                $orders     =   $orderList->orderList->order;
+                Log::error($e->getMessage());
+                Log::error($e->getTraceAsString());
             }
 
-            foreach($orders as $order){
 
-                $orderDetail  = $this->n11->OrderDetail([
-                    "id" => $order->id
-                ]);
+            return ;
 
-                $sales[]    =   $orderDetail;
-            }
-
-            return $sales;
-
-
-        }catch(Exception $ex){
-            return [];
-        }
-    }
-
-    /**
-     * n11 Satışlarını paraşüte aktarır
-     */
-    public function transfer()
-    {
-        $sales = $this->sales();
-
-        foreach ($sales as $sale)
-        {
-            $this->processSale($sale);
-
-        }
     }
 
     protected function processSale($sale)
     {
 
-        $this->parasutAdapter   =   new pazaryeriparasut\ParasutAdapter($this->config,"N11");
-        $sale = $sale->orderDetail;
+        $orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$sale->orderNumber)->count();
 
-        /** Eğer fatura daha önce işlendiyse atlıyor */
-        if($this->localStorage->get("order.N11_".$sale->id))
+        if($orderCount>0)
         {
             return;
         }
@@ -109,26 +128,43 @@ class N11 extends Marketplace
         if($sale->billingTemplate->dueAmount == 0 )
             return;
 
-        $contactType    =   $sale->buyer->taxId?'company':'person';
+        $contactType    =   $sale->buyer->taxId?'Company':'Customer';
+        $taxNumber      =   $sale->buyer->taxId;
+        $taxOffice      =   $sale->buyer->taxOffice;
+        $tc             =   self::fillTc($sale->buyer->tcId);
 
-        $taxNumber = $sale->buyer->taxId;
+        $pull   =   new pazaryeriparasut\Pull($this->marketplace);
+        $pull->createCustomer($contactType, $sale->buyer->id, $sale->billingAddress->fullName,
+                                $sale->billingAddress->address,$taxNumber,$taxOffice,$sale->billingAddress->city,
+                                $sale->billingAddress->district,$sale->billingAddress->gsm,$sale->buyer->email,$tc);
 
-        $taxOffice =    $sale->buyer->taxOffice;
-        if(!$taxNumber)
+        $invoiceDescription = $this->getInvoiceDescription($sale);
+
+        $createdAt = Carbon::createFromFormat('d/m/Y H:i',$sale->createDate);
+
+        $pull->createOrder($sale->orderNumber, $sale->billingTemplate->sellerInvoiceAmount, "N11 ".$invoiceDescription, $createdAt);
+
+        foreach ($sale->itemList as $item)
         {
-            $taxNumber = $sale->buyer->tcId?$sale->buyer->tcId:11111111111;
-        }
-        else
-        {
-            $taxOffice =    $sale->buyer->taxOffice ? $sale->buyer->taxOffice : $sale->billingAddress->district;
+            if(!is_array($item)){
+                $items[] = $item;
+            }
+            else
+            {
+                $items = $item;
+            }
+
+            foreach ($items as $i)
+            {
+                $pull->addProduct($i->productName,$i->productId,$i->quantity,($i->sellerInvoiceAmount / $i->quantity));
+            }
+
         }
 
-        $this->parasutAdapter->setContact(
-            $contactType,$sale->buyer->id,$sale->billingAddress->fullName,
-            $sale->billingAddress->address,$taxNumber,$taxOffice,$sale->billingAddress->city,$sale->billingAddress->district,
-            $sale->billingAddress->gsm,$sale->buyer->email
-        );
+    }
 
+    private function getInvoiceDescription($sale)
+    {
         $items  =   [];
         foreach ($sale->itemList as $item1)
         {
@@ -147,16 +183,18 @@ class N11 extends Marketplace
 
             foreach ($items as $i)
             {
-                $this->parasutAdapter->addProduct($i->productName,$i->productId,$i->quantity,($i->sellerInvoiceAmount / $i->quantity));
                 $invoiceDescription.=$i->productName." ";
                 $total+=$i->dueAmount/$i->quantity;
-
             }
 
         }
 
-        $this->parasutAdapter->saveInvoice($sale->id,$sale->billingTemplate->sellerInvoiceAmount,$invoiceDescription,date('Y-m-d'),$taxNumber);
+        return $invoiceDescription;
+    }
 
+    public function pull()
+    {
+        $this->sales();
     }
 
 }
