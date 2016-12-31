@@ -5,6 +5,7 @@ namespace salyangoz\pazaryeriparasut\Services;
 use salyangoz\pazaryeriparasut\Models\Customer;
 use salyangoz\pazaryeriparasut\Models\Order;
 use salyangoz\pazaryeriparasut\Models\Product;
+use salyangoz\pazaryeriparasut\ParasutAdapter;
 use Illuminate\Support\Facades\Log;
 
 class Push extends ParasutAdapter

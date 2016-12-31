@@ -25,7 +25,7 @@ class CreateCustomer extends Migration
             $table->bigInteger('tc')->nullable()->default('11111111111');
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->bigInteger('tax_number')->nullable();
+            $table->string('tax_number')->nullable();
             $table->string('tax_office')->nullable();
             $table->integer('parasut_id')->nullable();
             $table->timestamps();

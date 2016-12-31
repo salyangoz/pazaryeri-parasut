@@ -38,6 +38,7 @@ class N11 extends Marketplace
 
             $allOrders		=	array();
             $currentPage	=	-1;
+			$totalPage = 0;
 
             try
             {

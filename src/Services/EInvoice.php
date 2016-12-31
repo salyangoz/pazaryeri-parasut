@@ -58,26 +58,38 @@ class EInvoice extends ParasutAdapter
 
     private function makeEArchiveRequest(Order $order)
     {
-
-        $eArchiveResponse = $this->parasut->make('sale')->createEArchive($order->parasut_id,
-            array_merge($this->eInvoiceDefaults,[
+		$eArchiveResponse  = [];
+		
+		try
+		{
+			$eArchiveResponse = $this->parasut->make('sale')->createEArchive($order->parasut_id,
+            [
                 "internet_sale"=>[
+					"url"				=> "http://{$order->marketplace}.com",
+					"payment_type"      => config("pazaryeri-parasut.einvoice_payment_type"),
                     "payment_platform"  => $order->marketplace,
-                    "payment_date"      => Carbon::now()
-                ]
-            ]));
+                    "payment_date"      => date('Y-m-d'),
+                ],
+				'vat_withholding_code'  =>config("pazaryeri-parasut.einvoice_vat_withholding_code")]
+			);
+			
+			if(isset($eArchiveResponse['success'])) {
 
-        if(isset($eArchiveResponse['success'])) {
+				if ($eArchiveResponse['success'] == 'OK')
+				{
+					$order->e_invoice_status 		= "request_sent";
+					$order->e_invoice_document_type = "e_archive";
+					$order->save();
 
-            if ($eArchiveResponse['success'] == 'OK')
-            {
-                $order->e_invoice_status = "request_sent";
-                $order->e_document_type  = "e_archive";
-                $order->save();
-
-                return true;
-            }
-        }
+					return true;
+				}
+			}
+			
+		}catch(Exception $e)
+		{
+			Log::error("E-Arşiv işleme hatası: Sipariş id: {$order->id} ".$e->getMessage());
+		}
+		
 
         return false;
 
@@ -86,7 +98,7 @@ class EInvoice extends ParasutAdapter
     private function makeEInvoiceRequest(Order $order)
     {
 
-        $eInvoiceInboxes =  $this->parasut->make('sale')->getEInvoiceInboxes($order->tax_number);
+        $eInvoiceInboxes =  $this->parasut->make('sale')->getEInvoiceInboxes($order->customer->tax_number);
         if($eInvoiceInboxes['e_invoice_inboxes'] !== null)
         {
 
@@ -110,7 +122,7 @@ class EInvoice extends ParasutAdapter
                     {
 
                         $order->e_invoice_status = "request_sent";
-                        $order->e_document_type  = "e_invoice";
+                        $order->e_invoice_document_type  = "e_invoice";
                         $order->save();
 
                         return true;
@@ -163,12 +175,17 @@ class EInvoice extends ParasutAdapter
                      */
                     if($emailSent)
                     {
-                        $order->e_invoice_status = "ready";
+                        $order->e_invoice_status 		= "ready";
+						$order->einvoice_created_at 	= Carbon::now();
                         $order->save();
                     }
                 }
-
             }
+			elseif($eInvoiceStatus['status'] == "error" && $saleInvoice['sales_invoice']['item_type'] == 'invoice')
+			{
+				$order->e_invoice_status 		= "waiting";
+				$order->save();				
+			}
         }
     }
 

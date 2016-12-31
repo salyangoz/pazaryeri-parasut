@@ -70,7 +70,7 @@ class Gittigidiyor extends Marketplace
                 $tax        =   $sale->invoiceInfo->taxNumber;
             else
             {
-                if(isset($sale->invoiceInfo->tcCertificat))
+                if(isset($sale->invoiceInfo->tcCertificate))
                 {
                     $tc        =   self::fillTc($sale->invoiceInfo->tcCertificate);
                 }

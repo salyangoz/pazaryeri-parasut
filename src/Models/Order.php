@@ -28,7 +28,7 @@ class Order extends Model
     protected $fillable = ['marketplace','order_id','customer_id',
                             'e_invoice_status','e_invoice_document_type',
                             'e_invoice_url','amount','parasut_id','description',
-                            'e_invoice_at','order_created_at'];
+                            'einvoice_created_at','order_created_at'];
 
     public function scopeWaiting($query)
     {
