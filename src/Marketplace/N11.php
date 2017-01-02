@@ -50,14 +50,14 @@ class N11 extends Marketplace
                     $orderList  = $this->n11->DetailedOrderList(
                         [
                             "productId"=>'',
-                            "status"=> '',
-                            "buyerName"=> 'Approved',
+                            "status"=> 'Approved',
+                            "buyerName"=> '',
                             "orderNumber"=> '',
                             "productSellerCode" =>'',
                             "recipient"=> '',
                             "period"=>[
-                                "startDate"=> date_create('-3 day')->format('d/m/Y'),
-                                "endDate"=> date_create('now')->format('d/m/Y')
+								"startDate"=> date_create("-3 days")->format("d/m/Y"),
+								"endDate"=> date_create("now")->format("d/m/Y")
                             ]
                         ],
                         [
