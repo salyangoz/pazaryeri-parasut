@@ -87,23 +87,29 @@ class Push extends ParasutAdapter
 
         if($invoiceID = $invoice['sales_invoice']['id'])
         {
-            $status = $this->parasut->make('sale')->paid($invoiceID,
-                ["amount"    =>  $order->amount,
-                 "date"      =>  date('Y-m-d'),
-                 "account_id"=>  Config('pazaryeri-parasut.parasut_account_id')]
-            );
+			try{
+				$status = $this->parasut->make('sale')->paid($invoiceID,
+					["amount"    =>  $order->amount,
+					 "date"      =>  date('Y-m-d'),
+					 "account_id"=>  Config('pazaryeri-parasut.parasut_account_id')]
+				);
 
-            if($status['status'] == "success")
-            {
-                $order->parasut_id = $invoiceID;
-                $order->save();
+				if($status['status'] == "success")
+				{
+					$order->parasut_id = $invoiceID;
+					$order->save();
 
-                return $order->id;
-            }
-            else
-            {
-                $this->parasut->make('sale')->delete($invoice);
-            }
+					return $order->id;
+				}
+				else
+				{
+					$this->parasut->make('sale')->delete($invoiceID);
+				}
+			}catch(\Exception $e)
+			{
+				echo $e->getMessage();	
+				$this->parasut->make('sale')->delete($invoiceID);
+			}
         }
 
         return false;
