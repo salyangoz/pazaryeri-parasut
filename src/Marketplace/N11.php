@@ -130,15 +130,16 @@ class N11 extends Marketplace
         if($sale->billingTemplate->dueAmount == 0 )
             return;
 
-        $contactType    =   $sale->buyer->taxId?'Company':'Customer';
+        $contactType    =   $sale->buyer->taxId ? 'Company':'Customer';
         $taxNumber      =   $sale->buyer->taxId;
         $taxOffice      =   $sale->buyer->taxOffice;
         $tc             =   self::fillTc($sale->buyer->tcId);
+        $name2          =   $sale->buyer->fullName ?: $sale->shippingAddress->fullname;
 
         $pull   =   new Pull($this->marketplace);
         $pull->createCustomer($contactType, $sale->buyer->id, $sale->billingAddress->fullName,
                                 $sale->billingAddress->address, $taxNumber, $taxOffice, $sale->billingAddress->city,
-                                $sale->billingAddress->district, $sale->billingAddress->gsm, $sale->buyer->email, $tc);
+                                $sale->billingAddress->district, $sale->billingAddress->gsm, $sale->buyer->email, $tc, $name2);
 
         $invoiceDescription = $this->getInvoiceDescription($sale);
 
