@@ -37,7 +37,7 @@ class Order extends Model
 
     public function scopeWaitingEinvoice($query)
     {
-        return $query->whereNotNull('parasut_id')->where('e_invoice_status','waiting')->whereDate('order_created_at', '<=', date('Y-m-d',strtotime("-3 days")));
+        return $query->whereNotNull('parasut_id')->where('e_invoice_status','waiting');
     }
 
     public function scopeAvibleEinvoices($query)

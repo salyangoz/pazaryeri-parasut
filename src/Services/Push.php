@@ -63,7 +63,7 @@ class Push extends ParasutAdapter
 
         $details            =  [
             'item_type'     => 'invoice',
-            'description'   => $order->description,
+            'description'   => substr($order->description, 0, 255),
             'issue_date'    => date('d-m-Y'),
             'category_id'   => config("pazaryeri-parasut.parasut_category_id"),
             'payment_status'=> 'paid',
