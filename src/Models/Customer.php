@@ -26,8 +26,8 @@ class Customer extends Model
      *
      * @var array
      */
-    protected $fillable = ['marketplace','customer_id','type', 'name',
-        'invoice_address','city','district','tc','tax_number','tax_office','parasut_id','phone','email'];
+    protected $fillable = ['marketplace', 'customer_id', 'type', 'name',
+        'invoice_address', 'city', 'district', 'tc', 'tax_number', 'tax_office', 'parasut_id', 'phone', 'email', 'name2'];
 
 
     public function order()

@@ -105,18 +105,12 @@ class Gittigidiyor extends Marketplace
             $fullname   =   $sale->buyerInfo->name." ".$sale->buyerInfo->surname;
         }
 
+        $name2 = $sale->buyerInfo->name." ".$sale->buyerInfo->surname;
+
         $pull   =   new Pull($this->marketplace);
 
-        $pull->createCustomer($contactType,$sale->buyerInfo->username,
-                                $fullname,
-                                $address,
-                                $tax,
-                                $taxOffice,
-                                $sale->buyerInfo->city,
-                                $district,
-                                $phone,
-                                $sale->buyerInfo->email,
-                                $tc)
+        $pull->createCustomer($contactType,$sale->buyerInfo->username, $fullname, $address, $tax, $taxOffice,
+                                $sale->buyerInfo->city, $district, $phone, $sale->buyerInfo->email, $tc, $name2)
             ->createOrder($sale->saleCode,$sale->price,"GG ".$sale->productTitle, Carbon::now())
             ->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price / $sale->amount);
     }

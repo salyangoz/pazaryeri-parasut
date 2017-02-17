@@ -137,8 +137,8 @@ class N11 extends Marketplace
 
         $pull   =   new Pull($this->marketplace);
         $pull->createCustomer($contactType, $sale->buyer->id, $sale->billingAddress->fullName,
-                                $sale->billingAddress->address,$taxNumber,$taxOffice,$sale->billingAddress->city,
-                                $sale->billingAddress->district,$sale->billingAddress->gsm,$sale->buyer->email,$tc);
+                                $sale->billingAddress->address, $taxNumber, $taxOffice, $sale->billingAddress->city,
+                                $sale->billingAddress->district, $sale->billingAddress->gsm, $sale->buyer->email, $tc);
 
         $invoiceDescription = $this->getInvoiceDescription($sale);
 

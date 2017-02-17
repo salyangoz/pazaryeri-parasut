@@ -24,7 +24,10 @@ class Hepsiburada extends Marketplace
 		
 		$this->hepsiburada	    =	new pazaryeriparasut\Library\Hepsiburada($hbConfig);
 	}
-	
+
+    /**
+     *
+     */
 	public function pull()
 	{
 		$orders = $this->sales();
@@ -35,11 +38,17 @@ class Hepsiburada extends Marketplace
         }
 	}
 
+    /**
+     * @return mixed
+     */
 	protected function sales()
     {
         return $this->hepsiburada->orders();
     }
 
+    /**
+     * @param $sale
+     */
     protected function processSale($sale)
     {
 
@@ -49,10 +58,17 @@ class Hepsiburada extends Marketplace
             return;
         }
 
+        $orderID = $sale->items[0]->orderNumber;
+
         /**
          * Sipariş daha önce işlendiyse atlıyor
          */
-        $orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$sale->packageNumber)->count();
+        $orderCount = Order::where('marketplace', $this->marketplace)
+            ->where(function($q) use ($sale, $orderID) {
+                $q->where('order_id',$sale->packageNumber)
+                    ->orWhere('order_id', $orderID);
+            })
+            ->count();
         if($orderCount>0)
         {
             return;
@@ -72,25 +88,26 @@ class Hepsiburada extends Marketplace
 
         list($date) = explode(".",$sale->items[0]->orderDate);
 
-        $orderDate  = Carbon::createFromFormat("Y-m-d\\TH:i:s",$date);;
+        $orderDate  = Carbon::createFromFormat("Y-m-d\\TH:i:s", $date);
 
         $pull   =   new pazaryeriparasut\Services\Pull($this->marketplace);
         $pull->createCustomer($contactType,
-            $sale->customerId,$sale->companyName, $address,$taxNumber,
-            $sale->taxOffice, $sale->billingCity, $sale->billingDistrict, $sale->phoneNumber,$sale->email,$tc);
+            $sale->customerId, $sale->companyName, $address,$taxNumber,
+            $sale->taxOffice, $sale->billingCity, $sale->billingDistrict, $sale->phoneNumber, $sale->email, $tc, $sale->recipientName);
 
-        $pull->createOrder($sale->packageNumber, $this->getTotal($sale->items), "HB - ".$this->getDescription($sale->items),$orderDate);
-
+        $pull->createOrder($orderID, $this->getTotal($sale->items), "HB - ".$this->getDescription($sale->items), $orderDate);
 
         foreach ($sale->items as $product)
         {
-
-            $pull->addProduct($product->productName,$product->lineItemId,$product->quantity,$product->price->amount);
-
+            $pull->addProduct($product->productName, $product->listingId, $product->quantity, $product->price->amount);
         }
 
     }
 
+    /**
+     * @param $items
+     * @return string
+     */
     private function getDescription($items)
     {
         $description    =   "";
@@ -102,6 +119,10 @@ class Hepsiburada extends Marketplace
         return $description;
     }
 
+    /**
+     * @param $items
+     * @return int
+     */
     private function getTotal($items)
     {
         $total = 0;

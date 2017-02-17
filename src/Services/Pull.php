@@ -43,7 +43,23 @@ class Pull
         return $product;
     }
 
-    public function createCustomer($contactType,$customerID,$fullName,$address,$taxID,$taxOffice,$city,$district,$phone,$email,$tc)
+    /**
+     * @param $contactType
+     * @param $customerID
+     * @param $fullName
+     * @param $address
+     * @param $taxID
+     * @param $taxOffice
+     * @param $city
+     * @param $district
+     * @param $phone
+     * @param $email
+     * @param $tc
+     * @param $name2
+     * @return $this
+     */
+    public function createCustomer($contactType, $customerID, $fullName, $address, $taxID, $taxOffice,
+                                   $city, $district, $phone, $email, $tc, $name2 = "")
     {
         $this->customer = $this->getCustomer($customerID);
 
@@ -67,7 +83,8 @@ class Pull
             "tax_number"        => $taxID == '' ? null : $taxID,
             "tax_office"        => $taxOffice,
             "phone"             => $phone,
-            "email"             => $email
+            "email"             => $email,
+            "name2"             => $name2
         ]);
 
         $customer->save();
@@ -122,16 +139,16 @@ class Pull
 
     private function getCustomer($customerID)
     {
-        return Customer::where('marketplace',$this->marketplace)->where('customer_id',$customerID)->first();
+        return Customer::where('marketplace',$this->marketplace)->where('customer_id', $customerID)->first();
     }
 
     private function getOrder($orderID)
     {
-        return Order::where('marketplace',$this->marketplace)->where('order_id',$orderID)->first();
+        return Order::where('marketplace',$this->marketplace)->where('order_id', $orderID)->first();
     }
 
     private function getProduct($productID)
     {
-        return Product::where('marketplace',$this->marketplace)->where('product_id',$productID)->first();
+        return Product::where('marketplace',$this->marketplace)->where('product_id', $productID)->first();
     }
 }

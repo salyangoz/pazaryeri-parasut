@@ -55,6 +55,8 @@ class Push extends ParasutAdapter
             }
         }
 
+        $product->save();
+
         return $product->parasut_id;
     }
 
