@@ -117,30 +117,38 @@ class Push extends ParasutAdapter
 
     private function pushCustomer(Customer $customer)
     {
+
+        $details =  [
+            'contact_type'  =>  $customer->type == "Customer" ? "person" : "company",
+            'name' => $customer->name,
+            'email' => $customer->email,
+            'tax_number' => $customer->tax_number ? $customer->tax_number : $customer->tc,
+            'tax_office' => $customer->tax_office,
+            'address_attributes' => [
+                'address' => $customer->invoice_address,
+                'phone' => $customer->phone,
+            ],
+            'city'     =>$customer->city,
+            'district' =>$customer->district
+        ];
+
         if(!$customer->parasut_id)
         {
-            $details =
-                [
-                    'contact_type'  =>  $customer->type == "Customer" ? "person" : "company",
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'tax_number' => $customer->tax_number ? $customer->tax_number : $customer->tc,
-                    'tax_office' => $customer->tax_office,
-                    'address_attributes' => [
-                        'address' => $customer->invoice_address,
-                        'phone' => $customer->phone,
-                    ],
-                    'city'     =>$customer->city,
-                    'district' =>$customer->district
-                ];
 
             $contact = $this->parasut->make('contact')->create(
                 $details
             );
 
-            $customer->parasut_id = $contact['contact']['id'];
-            $customer->save();
         }
+        else
+        {
+            $contact = $this->parasut->make('contact')->update($customer->parasut_id,
+                $details
+            );
+        }
+
+        $customer->parasut_id = $contact['contact']['id'];
+        $customer->save();
 
         return $customer->parasut_id;
     }

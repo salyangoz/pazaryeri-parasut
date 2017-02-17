@@ -48,27 +48,31 @@ class Pull
         $this->customer = $this->getCustomer($customerID);
 
         if(!$this->customer){
-
             $customer   =   new Customer();
-            $customer->fill([
-                "marketplace"       =>$this->marketplace,
-                "customer_id"       => $customerID,
-                "type"              => $contactType,
-                "invoice_address"   => $address,
-                "name"              => $fullName,
-                "city"              => $city,
-                "district"          => $district,
-                "tc"                => $tc,
-                "tax_number"        => $taxID == '' ? null : $taxID,
-                "tax_office"        => $taxOffice,
-                "phone"             => $phone,
-                "email"             => $email
-            ]);
-
-            $customer->save();
-
-            $this->customer = $customer;
         }
+        else
+        {
+            $customer   =   $this->customer;
+        }
+
+        $customer->fill([
+            "marketplace"       => $this->marketplace,
+            "customer_id"       => $customerID,
+            "type"              => $contactType,
+            "invoice_address"   => $address,
+            "name"              => $fullName,
+            "city"              => $city,
+            "district"          => $district,
+            "tc"                => $tc,
+            "tax_number"        => $taxID == '' ? null : $taxID,
+            "tax_office"        => $taxOffice,
+            "phone"             => $phone,
+            "email"             => $email
+        ]);
+
+        $customer->save();
+
+        $this->customer = $customer;
 
         return $this;
     }
