@@ -134,7 +134,7 @@ class N11 extends Marketplace
         $taxNumber      =   $sale->buyer->taxId;
         $taxOffice      =   $sale->buyer->taxOffice;
         $tc             =   self::fillTc($sale->buyer->tcId);
-        $name2          =   $sale->buyer->fullName ?: $sale->shippingAddress->fullname;
+        $name2          =   isset($sale->buyer->fullName) ? $sale->buyer->fullName : $sale->shippingAddress->fullname;
 
         $pull   =   new Pull($this->marketplace);
         $pull->createCustomer($contactType, $sale->buyer->id, $sale->billingAddress->fullName,
@@ -145,7 +145,7 @@ class N11 extends Marketplace
 
         $createdAt = Carbon::createFromFormat('d/m/Y H:i',$sale->createDate);
 
-        $pull->createOrder($sale->orderNumber, $sale->billingTemplate->sellerInvoiceAmount, "N11 ".$invoiceDescription, $createdAt);
+        $pull->createOrder($sale->orderNumber, $sale->billingTemplate->sellerInvoiceAmount - $sale->billingTemplate->totalServiceItemOriginalPrice, "N11 ".$invoiceDescription, $createdAt);
 
         foreach ($sale->itemList as $item)
         {

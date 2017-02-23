@@ -72,17 +72,21 @@ class Push extends ParasutAdapter
             'contact_id'    => $order->customer->parasut_id
         ];
 
+		$total = 0;
         foreach ($order->orderProduct()->get() as $item)
         {
+
+			$price = ($item->price) / (1 + 0.18);
             $details['details_attributes'][] =
                 [
                     'product_id'        => $this->pushProduct($item->product),
                     'quantity'          => $item->quantity,
                     'discount_value'    => 0,
                     'discount_type'     => 'amount',
-                    'unit_price'        => ($item->price) / (1 + 0.18),
+                    'unit_price'        => $price,
                     'vat_rate'          => 0.18 * 100,
                 ];
+				
         }
 
         $invoice = $this->parasut->make('sale')->create($details);
@@ -90,11 +94,16 @@ class Push extends ParasutAdapter
         if($invoiceID = $invoice['sales_invoice']['id'])
         {
 			try{
-				$status = $this->parasut->make('sale')->paid($invoiceID,
-					["amount"    =>  $order->amount,
+				$invoice = $this->parasut->make('sale')->find($invoiceID);
+
+				if($invoice['sales_invoice']['remaining'] > 0) {
+					$status = $this->parasut->make('sale')->paid($invoiceID,
+					["amount"    =>  $invoice['sales_invoice']['remaining'],
 					 "date"      =>  date('Y-m-d'),
-					 "account_id"=>  Config('pazaryeri-parasut.parasut_account_id')]
-				);
+					 "account_id"=>  Config('pazaryeri-parasut.parasut_account_id')]);
+				}else{
+					$status['status'] = "success";
+				}
 
 				if($status['status'] == "success")
 				{
