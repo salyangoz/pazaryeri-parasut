@@ -43,10 +43,15 @@ return [
 
     'aws'   =>  [
         'invoice_bucket'        => env('AWS_INVOICE_BUCKET'),
-        'invoice_bucket_url'    => env('AWS_INVOICE_BUCKET_URL')
+        'invoice_bucket_url'    => env('AWS_INVOICE_BUCKET_URL'),
+		'invoice_base_path'		=> env('AWS_INVOICE_BASE_PATH'),
     ],
 
     'marketplace'   =>  [
-        'name'  =>  env('MARKETPLACE_NAME')
+        'name'  =>  env('MARKETPLACE_NAME'),
+		'email' 	=>	env('MARKETPLACE_EMAIL'),
+		'phone'	=>  env('MARKETPLACE_PHONE'),
+		'logo_url'=> env('MARKETPLACE_LOGO_URL'),
+		'url' => env('MARKETPLACE_URL')
     ]
 ];

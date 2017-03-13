@@ -111,7 +111,8 @@ class Gittigidiyor extends Marketplace
 
         $pull->createCustomer($contactType,$sale->buyerInfo->username, $fullname, $address, $tax, $taxOffice,
                                 $sale->buyerInfo->city, $district, $phone, $sale->buyerInfo->email, $tc, $name2)
-            ->createOrder($sale->saleCode,$sale->price,"GG ".$sale->productTitle, Carbon::now())
+            
+			->createOrder($sale->saleCode,$sale->price, "Gittigidiyor #" . $sale->saleCode, Carbon::now())
             ->addProduct($sale->productTitle,$sale->productId,$sale->amount,$sale->price / $sale->amount);
     }
 

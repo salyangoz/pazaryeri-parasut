@@ -80,14 +80,19 @@ class N11 extends Marketplace
                     {
                         continue;
                     }
+					
+					if(is_object($orderList->orderList->order)) {
+						
+						$orderList->orderList->order = array($orderList->orderList->order);
+						
+					}
 
                     foreach($orderList->orderList->order as $order2)
                     {
-                        $orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$order2->orderNumber)->count();
+                        $orderCount = Order::where('marketplace', $this->marketplace)->where('order_id', $order2->orderNumber)->count();
 
                         if($orderCount == 0)
                         {
-
                             sleep(1);
                             $orderDetail  = $this->n11->OrderDetail([
                                 "id" => $order2->id
@@ -121,7 +126,7 @@ class N11 extends Marketplace
 
         $orderCount = Order::where('marketplace',$this->marketplace)->where('order_id',$sale->orderNumber)->count();
 
-        if($orderCount>0)
+        if($orderCount > 0)
         {
             return;
         }
@@ -134,18 +139,22 @@ class N11 extends Marketplace
         $taxNumber      =   $sale->buyer->taxId;
         $taxOffice      =   $sale->buyer->taxOffice;
         $tc             =   self::fillTc($sale->buyer->tcId);
-        $name2          =   isset($sale->buyer->fullName) ? $sale->buyer->fullName : $sale->shippingAddress->fullname;
+        $name2          =   isset($sale->buyer->fullName) ? $sale->buyer->fullName : $sale->billingAddress->fullname;
+		
+		if(strlen($name2) == 0){
+			$name2 = $sale->billingAddress->fullname;
+		}
 
         $pull   =   new Pull($this->marketplace);
-        $pull->createCustomer($contactType, $sale->buyer->id, $sale->billingAddress->fullName,
+        $pull->createCustomer($contactType, $sale->buyer->id, $name2,
                                 $sale->billingAddress->address, $taxNumber, $taxOffice, $sale->billingAddress->city,
-                                $sale->billingAddress->district, $sale->billingAddress->gsm, $sale->buyer->email, $tc, $name2);
+                                $sale->billingAddress->district, $sale->billingAddress->gsm, $sale->buyer->email, $tc, $sale->billingAddress->fullName);
 
         $invoiceDescription = $this->getInvoiceDescription($sale);
 
         $createdAt = Carbon::createFromFormat('d/m/Y H:i',$sale->createDate);
 
-        $pull->createOrder($sale->orderNumber, $sale->billingTemplate->sellerInvoiceAmount - $sale->billingTemplate->totalServiceItemOriginalPrice, "N11 ".$invoiceDescription, $createdAt);
+        $pull->createOrder($sale->orderNumber, $sale->billingTemplate->sellerInvoiceAmount - $sale->billingTemplate->totalServiceItemOriginalPrice, "N11 #" . $sale->orderNumber, $createdAt);
 
         foreach ($sale->itemList as $item)
         {

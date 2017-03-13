@@ -95,7 +95,7 @@ class Hepsiburada extends Marketplace
             $sale->customerId, $sale->companyName, $address,$taxNumber,
             $sale->taxOffice, $sale->billingCity, $sale->billingDistrict, $sale->phoneNumber, $sale->email, $tc, $sale->recipientName);
 
-        $pull->createOrder($orderID, $this->getTotal($sale->items), "HB - ".$this->getDescription($sale->items), $orderDate);
+        $pull->createOrder($orderID, $this->getTotal($sale->items), "HB #" . $orderID, $orderDate);
 
         foreach ($sale->items as $product)
         {

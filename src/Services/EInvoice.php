@@ -155,8 +155,8 @@ class EInvoice extends ParasutAdapter
 
             if($eInvoiceStatus['status'] == "done" && $saleInvoice['sales_invoice']['item_type'] == 'invoice')
             {
-
-                $eInvoicePath   =   parent::replaceTr(date('Y-m-d')."/{$order->customer->name}-{$order->id}.pdf");
+				
+                $eInvoicePath   =   config("pazaryeri-parasut.aws.invoice_base_path") . parent::replaceTr(date('Y-m-d')."/{$order->customer->name}-{$order->id}.pdf");
 
                 $s3Transfer =   $this->s3Transfer($eInvoicePath, $eInvoiceStatus['pdf']['url']);
 
@@ -168,7 +168,10 @@ class EInvoice extends ParasutAdapter
 
                     $emailSent = $this->sendMail($order->customer->name, $order->customer->email,
                         config('pazaryeri-parasut.aws.invoice_bucket_url').$eInvoicePath, $order->order_id,
-                        $order->marketplace. " " .config('pazaryeri-parasut.marketplace.name'));
+                        $order->marketplace. " " .config('pazaryeri-parasut.marketplace.name'),
+						config('pazaryeri-parasut.marketplace.logo_url'), config('pazaryeri-parasut.marketplace.phone'), config('pazaryeri-parasut.marketplace.email'),
+						config('pazaryeri-parasut.marketplace.url')
+						);
 
                     /**
                      * Email de başarıyla gönderildiyse fatura e-faturası bekleyenler arasından siliniyor.
@@ -198,12 +201,20 @@ class EInvoice extends ParasutAdapter
      * @param $marketplaceName
      * @return bool
      */
-    private function sendMail($customerName,$customerEmail,$eInvoiceUrl,$orderID,$marketplaceName)
+    private function sendMail($customerName,$customerEmail,$eInvoiceUrl,$orderID,$marketplaceName, $companyLogoUrl, $companyPhone, $companyEmail, $companyUrl)
     {
         $mailview   =   'pazaryeri-parasut::emails.einvoice';
 
-        Mail::send($mailview, ['customerName' => $customerName,'orderID'=>$orderID, 'marketplaceName'=> $marketplaceName],
-
+        Mail::send($mailview, [
+			'customerName' => $customerName, 
+			'orderID' => $orderID, 
+			'marketplaceName'=> $marketplaceName ,
+			'companyLogoUrl' => $companyLogoUrl,
+			'companyName' => $marketplaceName,
+			'companyPhone' => $companyPhone,
+			'companyEmail' => $companyEmail,
+			'companyUrl' => $companyUrl
+		],
             function ($m) use ($eInvoiceUrl,$marketplaceName,$customerEmail)
             {
                 $m->from(config('pazaryeri-parasut.mail.from_email'), config('pazaryeri-parasut.mail.from_name'));
@@ -216,7 +227,7 @@ class EInvoice extends ParasutAdapter
                     $m->cc($cc);
                 }
 
-                $m->subject("{$marketplaceName} alışverişinizin e-faturası hazır!");
+                $m->subject("{$marketplaceName} e-Faturanız");
                 $m->attach($eInvoiceUrl);
             });
 

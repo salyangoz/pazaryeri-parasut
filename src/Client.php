@@ -41,8 +41,10 @@ class Client implements PazaryeriParasut
 
         try
 		{
-			$gittigidiyorMarket = new Marketplace\Gittigidiyor($this->config);
-			$gittigidiyorMarket->pull();
+			if($this->config['gittigidiyor_api_key']) {
+				$gittigidiyorMarket = new Marketplace\Gittigidiyor($this->config);
+				$gittigidiyorMarket->pull();
+			}
 		}
 		catch(Exception $e)
 		{
@@ -51,8 +53,10 @@ class Client implements PazaryeriParasut
 		
 		try
 		{
-			$n11    =   new Marketplace\N11($this->config);
-			$n11->pull();
+			if($this->config['n11_app_key']) {
+				$n11    =   new Marketplace\N11($this->config);
+				$n11->pull();
+			}
 		}
 		catch(Exception $e)
 		{
@@ -61,8 +65,12 @@ class Client implements PazaryeriParasut
 
 		try
         {
-            $hepsiburada    =   new Hepsiburada($this->config);
-            $hepsiburada->pull();
+			if($this->config['hepsiburada_username']) {
+				
+				$hepsiburada    =   new Hepsiburada($this->config);
+				$hepsiburada->pull();
+			
+			}
         }
         catch (Exception $e)
         {
