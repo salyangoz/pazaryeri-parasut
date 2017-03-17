@@ -141,8 +141,10 @@ class N11 extends Marketplace
         $tc             =   self::fillTc($sale->buyer->tcId);
         $name2          =   isset($sale->buyer->fullName) ? $sale->buyer->fullName : $sale->billingAddress->fullname;
 		
-		if(strlen($name2) == 0){
-			$name2 = $sale->billingAddress->fullname;
+		if(strlen($name2) == 0 && isset($sale->billingAddress)){
+			if(isset($sale->billingAddress->fullname)) {
+				$name2 = $sale->billingAddress->fullname;
+			}
 		}
 
         $pull   =   new Pull($this->marketplace);
