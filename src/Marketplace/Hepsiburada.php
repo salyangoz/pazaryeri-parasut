@@ -59,6 +59,7 @@ class Hepsiburada extends Marketplace
         }
 
         $orderID = $sale->items[0]->orderNumber;
+		$packageID = $sale->packageNumber;
 
         /**
          * Sipariş daha önce işlendiyse atlıyor
@@ -95,7 +96,7 @@ class Hepsiburada extends Marketplace
             $sale->customerId, $sale->companyName, $address,$taxNumber,
             $sale->taxOffice, $sale->billingCity, $sale->billingDistrict, $sale->phoneNumber, $sale->email, $tc, $sale->recipientName);
 
-        $pull->createOrder($orderID, $this->getTotal($sale->items), "HB #" . $orderID, $orderDate);
+        $pull->createOrder($packageID, $this->getTotal($sale->items), "HB #" . $orderID, $orderDate, $orderID);
 
         foreach ($sale->items as $product)
         {

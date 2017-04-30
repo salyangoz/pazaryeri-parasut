@@ -76,7 +76,7 @@ class Pull
             "customer_id"       => $customerID,
             "type"              => $contactType,
             "invoice_address"   => $address,
-            "name"              => $fullName,
+            "name"              => $fullName ?: $name2,
             "city"              => $city,
             "district"          => $district,
             "tc"                => $tc,
@@ -112,7 +112,7 @@ class Pull
         return $this;
     }
 
-    public function createOrder($saleID,$total,$description,$createdAt=false)
+    public function createOrder($saleID,$total,$description,$createdAt=false, $orderID2 = null)
     {
 
         if(!$createdAt)
@@ -130,7 +130,8 @@ class Pull
                     'e_invoice_status'=>"waiting",
                     "description"=>$description,
                     'amount'=>$total,
-                    'order_created_at'=>$createdAt
+                    'order_created_at'=>$createdAt,
+					'order_id2' => $orderID2
                 ]);
         }
 

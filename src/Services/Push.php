@@ -131,7 +131,7 @@ class Push extends ParasutAdapter
 
         $details =  [
             'contact_type'  =>  $customer->type == "Customer" ? "person" : "company",
-            'name' => $customer->name,
+            'name' => $customer->name ?: $customer->name2,
             'email' => $customer->email,
             'tax_number' => $customer->tax_number ? $customer->tax_number : $customer->tc,
             'tax_office' => $customer->tax_office,
