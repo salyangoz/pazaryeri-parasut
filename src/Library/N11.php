@@ -56,7 +56,9 @@ Class N11 {
         $this->setUrl('OrderService.wsdl');
         self::$_parameters['searchData'] = $searchData;
         self::$_parameters['pagingData'] = $pagingData;
-        return self::$_sclient->DetailedOrderList(self::$_parameters);
+        $response = self::$_sclient->OrderList(self::$_parameters);
+		
+		return $response;
     }
     
     public function OrderDetail(array $orderRequest = Array()) {
@@ -73,6 +75,7 @@ Class N11 {
 
     public function checkResponse($response)
     {
+		
         if($response->result->status == "failure")
         {
             throw new \Exception($response->result->errorMessage . " " . $response->result->errorCode);

@@ -74,8 +74,6 @@ class N11 extends Marketplace
 
                     $totalPage	=	$orderList->pagingData->pageCount;
 
-                    Log::info("Page: {$currentPage}/{$totalPage}");
-
                     if(!isset($orderList->orderList->order))
                     {
                         continue;
@@ -89,10 +87,15 @@ class N11 extends Marketplace
 
                     foreach($orderList->orderList->order as $order2)
                     {
+						$orderDetail  = $this->n11->OrderDetail([
+							"id" => $order2->id
+						]);
+							
                         $orderCount = Order::where('marketplace', $this->marketplace)->where('order_id', $order2->orderNumber)->count();
 
                         if($orderCount == 0)
                         {
+							Log::info("order id: ". $order2->id);
                             sleep(1);
                             $orderDetail  = $this->n11->OrderDetail([
                                 "id" => $order2->id
@@ -114,6 +117,8 @@ class N11 extends Marketplace
             {
                 Log::error($e->getMessage());
                 Log::error($e->getTraceAsString());
+				echo $e->getMessage();
+				echo $e->getTraceAsString();
             }
 
 
@@ -142,8 +147,8 @@ class N11 extends Marketplace
         $name2          =   isset($sale->buyer->fullName) ? $sale->buyer->fullName : $sale->billingAddress->fullname;
 		
 		if(strlen($name2) == 0 && isset($sale->billingAddress)){
-			if(isset($sale->billingAddress->fullname)) {
-				$name2 = $sale->billingAddress->fullname;
+			if(isset($sale->billingAddress->fullName)) {
+				$name2 = $sale->billingAddress->fullName;
 			}
 		}
 

@@ -375,8 +375,8 @@ class ParasutAdapter
      */
     public static function replaceTr($text) {
         $text = trim($text);
-        $search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü',' ');
-        $replace = array('c','c','g','g','i','i','o','o','s','s','u','u','_');
+        $search = array('Ç','ç','Ğ','ğ','ı','İ','Ö','ö','Ş','ş','Ü','ü',' ', 'â', 'Â');
+        $replace = array('c','c','g','g','i','i','o','o','s','s','u','u','_','a','a,');
         $new_text = str_replace($search,$replace,$text);
         return strtolower($new_text);
     }
